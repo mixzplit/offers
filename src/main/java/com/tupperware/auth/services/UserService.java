@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.tupperware.auth.dto.UserDTO;
 import com.tupperware.auth.entity.User;
 import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
 
 @Service
@@ -20,6 +21,8 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	UserRepository userRepo;
+	@Autowired
+	UserActionLogService actionLogService;
 	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -48,6 +51,8 @@ public class UserService implements UserDetailsService {
 			userDto.setZona(user.getZona());
 			userDto.setIdPerfil(user.getRol().getNombreRol());
 			userDto.setGrupoAplicacion(user.getGrupoAplicacion());
+			
+			actionLogService.logAction(user.getIdUsuario(), "Perfil", "Consulta perfil Usuario");
 			
 			return new ApiResponse<>(HttpStatus.OK.value(), 
 					"success", 

@@ -1,5 +1,8 @@
 # Documentación de la API
 
+![Maven Central Version](https://img.shields.io/maven-central/v/org.springframework.boot/spring-boot-starter-parent?label=Spring%20Boot&color=brightgreen)
+![Java Version](https://img.shields.io/badge/Java-22-orange)
+
 ## Introducción
 
 Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y **Wao Offers**. Esta API te permite gestionar la autenticación, el registro de usuarios e interactuar con las ofertas.
@@ -52,6 +55,9 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
 #### POST `/auth/register`
 
 - **Descripción**: Registra un nuevo usuario en el sistema.
+
+> **Nota**: Este endpoint está en desarrollo y aún no está disponible.
+
 - **Cuerpo de la solicitud**:
   ```json
   {
@@ -74,7 +80,7 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
   - `401 Unauthorized`: No se proporcionó una autenticación válida.
 
 - **JSON**
-	```
+	```json
 	{
 	    "statusCode": 200,
 	    "status": "success",
@@ -145,10 +151,12 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
 #### GET `/ofertas/all`
 
 - **Descripción**: Recupera una lista de todas las ofertas disponibles.
+- **Cabeceras**:
+  - `Authorization: Bearer <token>`: Se requiere un token JWT para la autenticación.
 - **Respuestas**:
   - `200 OK`: Devuelve una lista de ofertas.
 - **JSON**:
-	```
+	```json
 	{
 	  "statusCode": 200,
 	  "status": "success",
@@ -199,22 +207,7 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
 	      "cuota": 0,
 	      "codigoAuxiliar": null,
 	      "zonasAsignadas": "050;052;122;201;206;405;108;109;306;310;311;103;111;132;138;513;621;626;627"
-	    },
-	    {
-	      "idOferta": 4,
-	      "codigoArticulo": 640316,
-	      "descripcionArticulo": "BOWL CREATIVA VER LIM 7,8LT BR",
-	      "anio": 2024,
-	      "campania": 16,
-	      "fechaInicio": "2024-09-16T14:00:00",
-	      "fechaFin": "2024-09-16T21:00:00",
-	      "stock": 1500,
-	      "cantidadMaxRev": 2,
-	      "idGrupoAplicacion": 11,
-	      "cuota": 0,
-	      "codigoAuxiliar": null,
-	      "zonasAsignadas": "050;052;122;201;206;405;108;109;306;310;311;103;111;132;138;513;621;626;627;149;162;402;602;607"
-	    }    
+	    }
 	  ]
 	}	
 	```
@@ -222,12 +215,54 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
 #### GET `/ofertas/activas`
 
 - **Descripción**: Recupera una lista de las ofertas actualmente activas.
+- **Cabeceras**:
+  - `Authorization: Bearer <token>`: Se requiere un token JWT para la autenticación.
 - **Respuestas**:
   - `200 OK`: Devuelve una lista de ofertas activas.
+  - `204 No Content`: Sin ofertas activas para mostrar.
+  - `401 Unauthorized`: Acceso denegado / Token Expirado.
+- **JSON**:
+- *OK*:
+	```json
+	{
+	    "statusCode": 200,
+	    "status": "success",
+	    "message": "fetched",
+	    "requestDate": "2024-10-15T21:27:38.2554259",
+	    "data": [
+	        {
+	            "idOferta": 44,
+	            "codigoArticulo": 641777,
+	            "descripcionArticulo": "WAO BOLSA SILIC 1,7L DE REGALO ECO 500ML",
+	            "anio": 2024,
+	            "campania": 16,
+	            "fechaInicio": "2024-09-27T13:00:00",
+	            "fechaFin": "2024-10-28T17:00:00",
+	            "stock": 5000,
+	            "cantidadMaxRev": 2,
+	            "idGrupoAplicacion": 11,
+	            "cuota": 0,
+	            "codigoAuxiliar": null,
+	            "zonasAsignadas": ""
+	        }
+	    ]
+	}
+	```
+- *Error*:
+	```json
+	{
+	    "path": "/error",
+	    "error": "unauthorized",
+	    "message": "Acceso denegado o el token ha expirado.",
+	    "status": 401
+	}
+	```
 
 #### POST `/ofertas/registrar`
 
 - **Descripción**: Registra a un usuario para una oferta.
+- **Cabeceras**:
+  - `Authorization: Bearer <token>`: Se requiere un token JWT para la autenticación.
 - **Cuerpo de la solicitud**:
   ```json
   {
