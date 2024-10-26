@@ -24,8 +24,7 @@ import com.tupperware.responses.AuthResponse;
 @RequestMapping("/auth")
 public class AuthController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-	
+	private static final Logger logger = LoggerFactory.getLogger(AuthController.class);	
 	
 	@Autowired
 	AuthService authService;
@@ -33,9 +32,9 @@ public class AuthController {
 	UserService userService;
 	
 	@PostMapping("/login")
-	public ResponseEntity<AuthResponse> login(@RequestBody User user){
+	public ResponseEntity<AuthResponse> login(@RequestBody UserDTO user){
 		logger.info("Logeando...");
-		AuthResponse response =  authService.authenticate(user.getEmail(), user.getPassword());
+		AuthResponse response =  authService.authenticate(user.getEmailDni(), user.getPassword());
 		
 		if(response.getStatusCode() == HttpStatus.OK.value()) {
 			return ResponseEntity.status(HttpStatus.OK).body(response);

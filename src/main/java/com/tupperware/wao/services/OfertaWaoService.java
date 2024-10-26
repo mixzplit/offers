@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.tupperware.auth.entity.User;
 import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
+import com.tupperware.utils.AutenticacionUtil;
 import com.tupperware.wao.dto.OfertaWaoDTO;
 import com.tupperware.wao.entity.OfertaWao;
 import com.tupperware.wao.repository.OfertaWaoRepository;
@@ -25,8 +25,15 @@ public class OfertaWaoService {
 	OfertaWaoRepository oferta;
 	@Autowired
 	UserRepository userRepo;
+	@Autowired
+	AutenticacionUtil authUtil;
+	@Autowired
+	UserActionLogService actionLogService;
 	
 	public ApiResponse<List<OfertaWaoDTO>> obtenerOfertas() {
+		
+		String username = authUtil.getAuthenticatedUserEmail();
+		User user = userRepo.findByEmail(username);
 		
 		List<OfertaWao> ofertas = oferta.findAll();
 		
@@ -50,6 +57,8 @@ public class OfertaWaoService {
 							oferta.getZonasAsignadas()
 						)).collect(Collectors.toList());
 			
+			actionLogService.logAction(user.getIdUsuario(), "Ofertas", "Consulta de todas las ofertas");
+			
 			return new ApiResponse<>(HttpStatus.OK.value(), 
 						"success", 
 						"fetched", 
@@ -71,7 +80,7 @@ public class OfertaWaoService {
 	 */
 	public ApiResponse<List<OfertaWaoDTO>> obtenerOfertasActivas(LocalDateTime fechaActual){
 		
-		String username = getAuthenticatedUserEmail();
+		String username = authUtil.getAuthenticatedUserEmail();
 		
 		User user = userRepo.findByEmail(username);
 		String zonaUsuario = "%"+user.getZona()+"%"; // LIKE en el Repository		
@@ -110,15 +119,4 @@ public class OfertaWaoService {
 		}
 	}
 		
-	private String getAuthenticatedUserEmail() {
-	    // Obtener el usuario autenticado desde el contexto de seguridad
-	    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	    
-	    if (principal instanceof UserDetails) {
-	        return ((UserDetails) principal).getUsername(); // Este es el email del usuario autenticado
-	    } else {
-	        return principal.toString();
-	    }
-	}
-	
 }

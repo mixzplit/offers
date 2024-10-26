@@ -16,6 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OfertaUsuarioDTO {
+	private Integer idOferta;
 	private String descripcionArticulo;
 	private Integer codigoArticulo;
 	private Integer codigoAuxiliar;

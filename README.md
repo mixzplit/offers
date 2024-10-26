@@ -155,7 +155,7 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
   - `Authorization: Bearer <token>`: Se requiere un token JWT para la autenticación.
 - **Respuestas**:
   - `200 OK`: Devuelve una lista de ofertas.
-- **JSON**:
+	- **JSON**:
 	```json
 	{
 	  "statusCode": 200,
@@ -219,44 +219,45 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
   - `Authorization: Bearer <token>`: Se requiere un token JWT para la autenticación.
 - **Respuestas**:
   - `200 OK`: Devuelve una lista de ofertas activas.
+  
+  	- Respuesta JSON:
+  		```json
+		{
+		    "statusCode": 200,
+		    "status": "success",
+		    "message": "fetched",
+		    "requestDate": "2024-10-15T21:27:38.2554259",
+		    "data": [
+		        {
+		            "idOferta": 44,
+		            "codigoArticulo": 641777,
+		            "descripcionArticulo": "WAO BOLSA SILIC 1,7L DE REGALO ECO 500ML",
+		            "anio": 2024,
+		            "campania": 16,
+		            "fechaInicio": "2024-09-27T13:00:00",
+		            "fechaFin": "2024-10-28T17:00:00",
+		            "stock": 5000,
+		            "cantidadMaxRev": 2,
+		            "idGrupoAplicacion": 11,
+		            "cuota": 0,
+		            "codigoAuxiliar": null,
+		            "zonasAsignadas": ""
+		        }
+		    ]
+		}
+		```
   - `204 No Content`: Sin ofertas activas para mostrar.
   - `401 Unauthorized`: Acceso denegado / Token Expirado.
-- **JSON**:
-- *OK*:
-	```json
-	{
-	    "statusCode": 200,
-	    "status": "success",
-	    "message": "fetched",
-	    "requestDate": "2024-10-15T21:27:38.2554259",
-	    "data": [
-	        {
-	            "idOferta": 44,
-	            "codigoArticulo": 641777,
-	            "descripcionArticulo": "WAO BOLSA SILIC 1,7L DE REGALO ECO 500ML",
-	            "anio": 2024,
-	            "campania": 16,
-	            "fechaInicio": "2024-09-27T13:00:00",
-	            "fechaFin": "2024-10-28T17:00:00",
-	            "stock": 5000,
-	            "cantidadMaxRev": 2,
-	            "idGrupoAplicacion": 11,
-	            "cuota": 0,
-	            "codigoAuxiliar": null,
-	            "zonasAsignadas": ""
-	        }
-	    ]
-	}
-	```
-- *Error*:
-	```json
-	{
-	    "path": "/error",
-	    "error": "unauthorized",
-	    "message": "Acceso denegado o el token ha expirado.",
-	    "status": 401
-	}
-	```
+ 
+	- *Error*:
+		```json
+		{
+		    "path": "/error",
+		    "error": "unauthorized",
+		    "message": "Acceso denegado o el token ha expirado.",
+		    "status": 401
+		}
+		```
 
 #### POST `/ofertas/registrar`
 
@@ -272,8 +273,39 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
   }
   ```
 - **Respuestas**:
-  - `200 OK`: Registro de oferta exitoso.
+  - `201 Created`: Registro de oferta exitoso.
+  
+  	- Respuesta JSON:
+  		
+  		```json
+  		{
+		    "statusCode": 201,
+		    "status": "Registro exitoso",
+		    "message": "",
+		    "requestDate": "2024-10-18T23:30:25.1032556",
+		    "data": {
+		        "id": 18,
+		        "contrato": 349140,
+		        "idOferta": 44,
+		        "cantidadSolicitada": 1,
+		        "fechaRegistro": "2024-10-18T23:30:25.0933297",
+		        "estado": null
+		    }
+		}
+  		```
+  		
   - `400 Bad Request`: El registro falló debido a datos inválidos.
+  - `401 Unauthorized` : Acceso denegado o el token ha expirado.
+  	
+  	- Respuesta JSON Error:
+  		```json
+  		{
+		    "path": "/error",
+		    "error": "unauthorized",
+		    "message": "Acceso denegado o el token ha expirado.",
+		    "status": 401
+		}
+  		```
 
 #### PUT `/ofertas/actualizar`
 

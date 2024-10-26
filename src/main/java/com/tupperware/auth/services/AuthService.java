@@ -11,6 +11,7 @@ import com.tupperware.auth.repository.UserRepository;
 import com.tupperware.auth.utils.JwtUtil;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.AuthResponse;
+import com.tupperware.utils.ValidationUtil;
 
 @Service
 public class AuthService {
@@ -24,22 +25,44 @@ public class AuthService {
 	@Autowired
 	UserActionLogService actionLogService;
 	
+	
+	public AuthResponse authenticate(String emailDni, String password) {
+		if(ValidationUtil.isEmail(emailDni)) {
+			return authenticateEmail(emailDni, password);
+		}else {
+			try {
+				Integer dni = Integer.parseInt(emailDni);
+				return authenticateDni(dni, password);
+			} catch (NumberFormatException e) {
+				return new AuthResponse(
+		                HttpStatus.BAD_REQUEST.value(),
+		                "error",
+		                "Invalid DNI format",
+		                null
+		            );
+			}
+		}
+	}
+	
 	/**
 	 * Authentication by DNI
 	 * @param dni
 	 * @param password
 	 * @return
 	 */
-	public AuthResponse authenticate(Integer dni, String password) {
+	private AuthResponse authenticateDni(Integer dni, String password) {
 		User user = userRepo.findByDni(dni);
 		
 		if(user != null && user.getPassword().equals(password)) {
 			String jwt = jwtUtil.generateToken(user.getDni().toString());
 			
+			actionLogService.logAction(user.getIdUsuario(), "LogIn", "Inicio de Sesion");
+			
 			return new AuthResponse(
 					HttpStatus.OK.value(), 
 					HttpStatus.OK.name(), "", jwt);
 		}else {
+			actionLogService.logAction(user.getIdUsuario(), "LogIn", "Credenciales Invalidas");
 			return new AuthResponse(
 	                HttpStatus.UNAUTHORIZED.value(),
 	                "error",
@@ -54,7 +77,7 @@ public class AuthService {
 	 * @param password
 	 * @return
 	 */
-	public AuthResponse authenticate(String email, String password) {
+	private AuthResponse authenticateEmail(String email, String password) {
 		logger.info("Buscando Usuario...");
 		User user = userRepo.findByEmail(email);
 		

@@ -15,6 +15,7 @@ import com.tupperware.auth.entity.User;
 import com.tupperware.auth.repository.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
+import com.tupperware.utils.ValidationUtil;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -25,12 +26,21 @@ public class UserService implements UserDetailsService {
 	UserActionLogService actionLogService;
 	
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		User user = userRepo.findByEmail(email);
-		if (user == null) {
-			throw new UsernameNotFoundException("Usuario no encontrado con el email: " + email);
+	public UserDetails loadUserByUsername(String identificador) throws UsernameNotFoundException {
+		User user;
+		// Validamos si el usuario inicio con DNI o Email
+		// y lo propagamos en el contexto de Spring Security
+		if(ValidationUtil.isEmail(identificador)) {
+			user = userRepo.findByEmail(identificador);
+		}else {
+			user = userRepo.findByDni(Integer.parseInt(identificador));
 		}
 		
+		if (user == null) {
+			throw new UsernameNotFoundException("Usuario no encontrado con el email: " + identificador);
+		}
+		// Detalle del usuario de spring security pasando por parametro
+		// el email y pass del usuario obtenido
 		UserDetails userDet = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
 		
 		return userDet;

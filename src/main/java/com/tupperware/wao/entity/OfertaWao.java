@@ -41,6 +41,6 @@ public class OfertaWao {
 	@Column(length = 500)
 	private String zonasAsignadas;
 	@Version
-    private Integer version;
+    private Integer version = 0;
 	
 }
