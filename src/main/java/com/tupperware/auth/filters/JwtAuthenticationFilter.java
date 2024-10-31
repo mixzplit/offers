@@ -32,6 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
 	UserService userDetailsService;
 	
+	private static final String BEARER_PREFIX = "Bearer ";
+	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -73,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 		
 		//Verificar si viene un token buscando "Bearer"
-		if(StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+		if(StringUtils.hasText(token) && token.startsWith(BEARER_PREFIX)) {
 			// aqui obtenemos el token que es desde
 			// el caracter 7 hasta el final
 			return token.substring(7);

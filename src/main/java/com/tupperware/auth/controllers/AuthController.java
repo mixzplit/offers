@@ -35,13 +35,7 @@ public class AuthController {
 	public ResponseEntity<AuthResponse> login(@RequestBody UserDTO user){
 		logger.info("Logeando...");
 		AuthResponse response =  authService.authenticate(user.getEmailDni(), user.getPassword());
-		
-		if(response.getStatusCode() == HttpStatus.OK.value()) {
-			return ResponseEntity.status(HttpStatus.OK).body(response);
-		}else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-		}
-		
+		return ResponseEntity.status(response.getStatusCode()).body(response);
 	}
 	
 	@PostMapping("/register")
@@ -52,15 +46,8 @@ public class AuthController {
 	@GetMapping("/perfil")
 	public ResponseEntity<ApiResponse<UserDTO>> obtenerDatosUsuario(Authentication auth){
 		String username = auth.getName();
-		
 		ApiResponse<UserDTO> user = userService.obtenerDatosUsuario(username);
-		
-		if(user.getStatusCode() == HttpStatus.OK.value()) {
-			return ResponseEntity.status(user.getStatusCode()).body(user);
-		}else {
-			return ResponseEntity.status(user.getStatusCode()).body(user);
-		}
-		
+		return ResponseEntity.status(user.getStatusCode()).body(user);
 	}
 	
 }

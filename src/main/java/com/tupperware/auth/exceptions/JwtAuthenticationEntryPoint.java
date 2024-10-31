@@ -23,23 +23,28 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+	private static final String ERROR_MESSAGE = "Acceso denegado o el token ha expirado.";
+	private static final ObjectMapper MAPPER = new ObjectMapper(); //PARA QUE NO SE RECONFIGURE
+	
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 		
 		Map<String, Object> responseMap = new HashMap<>();
-		//responseMap.put("timestamp", LocalDateTime.now());
+		responseMap.put("timestamp", System.currentTimeMillis());
 		responseMap.put("status", HttpStatus.UNAUTHORIZED.value());
 		responseMap.put("error", "unauthorized");
-		responseMap.put("message", "Acceso denegado o el token ha expirado.");
+		responseMap.put("message", ERROR_MESSAGE);
 		responseMap.put("path", request.getRequestURI());
 
 		response.setContentType("application/json");
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		
-		ObjectMapper mapper = new ObjectMapper();
-		response.getWriter().write(mapper.writeValueAsString(responseMap));
+//		ObjectMapper mapper = new ObjectMapper();
+//		response.getWriter().write(mapper.writeValueAsString(responseMap));
 		
+		MAPPER.writeValue(response.getWriter(), responseMap)
+;		
 	}
 
 }
