@@ -7,7 +7,6 @@ import com.tupperware.auth.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 	User findByDni(Integer dni);
 	
-	User findByEmail(String email);
+	User findByEmail(String email);	
 	
-	boolean existsByPatrocinanteAndContrato(Integer contratoUM, Integer contrato);
 }

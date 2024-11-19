@@ -11,10 +11,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.tupperware.auth.dto.UserDTO;
+import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
+import com.tupperware.auth.repository.RevendedoraRepository;
 import com.tupperware.auth.repository.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
+import com.tupperware.utils.AutenticacionUtil;
 import com.tupperware.utils.ValidationUtil;
 
 @Service
@@ -23,7 +26,11 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	UserRepository userRepo;
 	@Autowired
+	RevendedoraRepository revRepo;
+	@Autowired
 	UserActionLogService actionLogService;
+	@Autowired
+	AutenticacionUtil authUtil;
 	
 	@Override
 	public UserDetails loadUserByUsername(String identificador) throws UsernameNotFoundException {
@@ -46,23 +53,28 @@ public class UserService implements UserDetailsService {
 		return userDet;
 	}
 	
-	public ApiResponse<UserDTO> obtenerDatosUsuario(String email){
-		User user = userRepo.findByEmail(email);
+	public ApiResponse<UserDTO> obtenerDatosUsuario(){
+		// usuario autenticado
+		String username = authUtil.getAuthenticatedUserEmail();
+		
+		User user = userRepo.findByEmail(username);
+		Revendedora rev = revRepo.findByContrato(user.getContrato());		
 		
 		if(user != null) {
 		
 			UserDTO userDto = new UserDTO();
-			userDto.setIdUsuario(user.getIdUsuario());
-			userDto.setNombres(user.getNombres());
-			userDto.setContrato(user.getContrato());
-			userDto.setDni(user.getDni());
-			userDto.setPatrocinante(user.getPatrocinante());
-			userDto.setEmail(user.getEmail());
-			userDto.setZona(user.getZona());
-			userDto.setIdPerfil(user.getRol().getNombreRol());
-			userDto.setGrupoAplicacion(user.getGrupoAplicacion());
+			//userDto.setIdUsuario(rev.getIdRevendedora());
+			userDto.setNombres(rev.getNombres());
+			userDto.setContrato(rev.getContrato());
+			userDto.setDni(rev.getDni());
+			userDto.setPatrocinante(rev.getPatrocinante());
+			userDto.setEmail(rev.getEmail());
+			userDto.setZona(rev.getZona());
+			//userDto.setIdPerfil(user.getRol().getNombreRol());
+			userDto.setIdPerfil(user.getNombreRol());
+			userDto.setGrupoAplicacion(rev.getGrupoAplicacion());
 			
-			actionLogService.logAction(user.getIdUsuario(), "Perfil", "Consulta perfil Usuario");
+			actionLogService.logAction(user.getContrato(), "Perfil", "Consulta perfil Usuario");
 			
 			return new ApiResponse<>(HttpStatus.OK.value(), 
 					"success", 

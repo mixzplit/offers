@@ -44,9 +44,8 @@ public class AuthController {
 	}
 	
 	@GetMapping("/perfil")
-	public ResponseEntity<ApiResponse<UserDTO>> obtenerDatosUsuario(Authentication auth){
-		String username = auth.getName();
-		ApiResponse<UserDTO> user = userService.obtenerDatosUsuario(username);
+	public ResponseEntity<ApiResponse<UserDTO>> obtenerDatosUsuario(){
+		ApiResponse<UserDTO> user = userService.obtenerDatosUsuario();
 		return ResponseEntity.status(user.getStatusCode()).body(user);
 	}
 	

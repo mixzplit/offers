@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.tupperware.auth.entity.GrupoAplicacion;
+import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
+import com.tupperware.auth.repository.RevendedoraRepository;
 import com.tupperware.auth.repository.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
@@ -25,6 +28,8 @@ public class OfertaWaoService {
 	OfertaWaoRepository oferta;
 	@Autowired
 	UserRepository userRepo;
+	@Autowired
+	RevendedoraRepository revRepo;
 	@Autowired
 	AutenticacionUtil authUtil;
 	@Autowired
@@ -57,7 +62,7 @@ public class OfertaWaoService {
 							oferta.getZonasAsignadas()
 						)).collect(Collectors.toList());
 			
-			actionLogService.logAction(user.getIdUsuario(), "Ofertas", "Consulta de todas las ofertas");
+			actionLogService.logAction(user.getContrato(), "Ofertas", "Consulta de todas las ofertas");
 			
 			return new ApiResponse<>(HttpStatus.OK.value(), 
 						"success", 
@@ -83,14 +88,21 @@ public class OfertaWaoService {
 		String username = authUtil.getAuthenticatedUserEmail();
 		
 		User user = userRepo.findByEmail(username);
-		String zonaUsuario = "%"+user.getZona()+"%"; // LIKE en el Repository		
+		Revendedora rev = revRepo.findByContrato(user.getContrato());
+		String zonaUsuario = "%"+rev.getZona()+"%"; // LIKE en el Repository		
 
+		//GrupoAplicacion de la rev
+		List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
+		        .map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
+		        .toList(); // Convertir a una lista
+		
 		List<OfertaWao> ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
 		
 		if(!ofertasActivas.isEmpty()) {
-			
+						
 			// Convertir entidad a DTO
 			List<OfertaWaoDTO> ofertasActivasDTO = ofertasActivas.stream()
+					.filter(oferta -> gruposUsuario.contains(oferta.getIdGrupoAplicacion()))
 					.map(oferta -> new OfertaWaoDTO(
 							oferta.getId(),
 							oferta.getCodigoArticulo(),
@@ -106,6 +118,8 @@ public class OfertaWaoService {
 							oferta.getCodigoAuxiliar(),
 							oferta.getZonasAsignadas()
 						)).collect(Collectors.toList());
+			
+			actionLogService.logAction(user.getContrato(), "Ofertas", "Consulta de ofertas Activas");
 			
 			return new ApiResponse<>(HttpStatus.OK.value(), 
 					"success", 

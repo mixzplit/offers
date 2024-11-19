@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,10 +47,9 @@ public class OfertasWaoController {
 	}
 	
 	@PostMapping("/registrar")
-	public ResponseEntity<ApiResponse<?>> registrarOfertaWao(Authentication auth, @RequestBody RegistroOfertaWaoDTO registro){
-		String username = auth.getName();
+	public ResponseEntity<ApiResponse<?>> registrarOfertaWao(@RequestBody RegistroOfertaWaoDTO registro){
 		
-		ApiResponse<?> dataSaved = registroOferta.registrarOfertaWao(username, registro.getContrato(), registro.getIdOferta(), registro.getCantidad());
+		ApiResponse<?> dataSaved = registroOferta.registrarOfertaWao(registro.getContrato(), registro.getIdOferta(), registro.getCantidad());
 		
 		return ResponseEntity.status(dataSaved.getStatusCode()).body(dataSaved);
 	}
@@ -63,12 +61,11 @@ public class OfertasWaoController {
 	}
 	
 	@GetMapping("/mis-ofertas")
-	public ResponseEntity<ApiResponse<List<OfertaUsuarioDTO>>> obtenerMisofertas(Authentication auth,
+	public ResponseEntity<ApiResponse<List<OfertaUsuarioDTO>>> obtenerMisofertas(
 													@RequestParam(required = false) Short anio,
 													@RequestParam(required = false) Short campania){
-		String username = auth.getName();
 		
-		ApiResponse<List<OfertaUsuarioDTO>> ofertasUsuario = registroOferta.ofertasUsuario(username, anio,campania);
+		ApiResponse<List<OfertaUsuarioDTO>> ofertasUsuario = registroOferta.ofertasUsuario(anio,campania);
 		
 		return ResponseEntity.status(ofertasUsuario.getStatusCode()).body(ofertasUsuario);
 	}
