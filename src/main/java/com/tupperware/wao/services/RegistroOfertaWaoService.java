@@ -42,7 +42,7 @@ public class RegistroOfertaWaoService {
 	@Transactional
 	public ApiResponse<?> registrarOfertaWao(Integer contrato, Integer idOferta, Integer cantidad){
 		String username = authUtil.getAuthenticatedUserEmail();
-		User userLogueado = userRepo.findByEmail(username);
+		User userLogueado = userRepo.findByDni(Integer.valueOf(username));
 		
 		if(userLogueado.getIdRolWeb() == 4) {
 			// SI ENTRA AQUI ES UM Y PUEDE CARGAR
@@ -79,7 +79,7 @@ public class RegistroOfertaWaoService {
 		try {
 			String username = authUtil.getAuthenticatedUserEmail();
 			
-			User user = userRepo.findByEmail(username);
+			User user = userRepo.findByDni(Integer.valueOf(username));
 			Integer contrato = user.getContrato();
 			List<OfertaUsuarioDTO> ofertas;
 			

@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService {
 		}
 		// Detalle del usuario de spring security pasando por parametro
 		// el email y pass del usuario obtenido
-		UserDetails userDet = new org.springframework.security.core.userdetails.User(user.getEmail().toString(), user.getPassword(), Collections.emptyList());
+		UserDetails userDet = new org.springframework.security.core.userdetails.User(user.getDni().toString(), user.getPassword(), Collections.emptyList());
 		
 		return userDet;
 	}
@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService {
 		// usuario autenticado
 		String username = authUtil.getAuthenticatedUserEmail();
 		
-		User user = userRepo.findByEmail(username);
+		User user = userRepo.findByDni(Integer.valueOf(username));
 		Revendedora rev = revRepo.findByContrato(user.getContrato());		
 		
 		if(user != null) {
@@ -70,6 +70,7 @@ public class UserService implements UserDetailsService {
 			userDto.setPatrocinante(rev.getPatrocinante());
 			userDto.setEmail(rev.getEmail());
 			userDto.setZona(rev.getZona());
+			userDto.setDivision(rev.getDivision());
 			//userDto.setIdPerfil(user.getRol().getNombreRol());
 			userDto.setIdPerfil(user.getNombreRol());
 			userDto.setGrupoAplicacion(rev.getGrupoAplicacion());
