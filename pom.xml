@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>22</java.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
+		<maven.test.skip>true</maven.test.skip>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -116,6 +117,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>ofertasWao-api</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

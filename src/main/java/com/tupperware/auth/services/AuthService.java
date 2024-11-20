@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.tupperware.auth.entity.User;
 import com.tupperware.auth.repository.UserRepository;
 import com.tupperware.auth.utils.JwtUtil;
-import com.tupperware.auth.utils.MD5PasswordEncoder;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.AuthResponse;
 import com.tupperware.utils.ValidationUtil;

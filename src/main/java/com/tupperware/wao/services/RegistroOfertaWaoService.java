@@ -3,12 +3,10 @@ package com.tupperware.wao.services;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.tupperware.auth.entity.GrupoAplicacion;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
@@ -175,12 +173,7 @@ public class RegistroOfertaWaoService {
 					.map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
 					.toList(); // Convertir a una lista
 			
-//			for(Integer id : gruposUsuario) {
-//				if(id.equals(ofertaE.getIdGrupoAplicacion())) {
-//					break;
-//				}
-//			}
-			
+		
 			boolean perteneceGrupo = gruposUsuario.stream()
 						.anyMatch(id -> id.equals(ofertaE.getIdGrupoAplicacion()));
 			
