@@ -2,6 +2,7 @@ package com.tupperware.wao.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,14 +18,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "registrowao")
+@Table(name = "REGISTROWAO")
 public class RegistroOfertaWao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "idregistro")
 	private Integer id; //idRegistro
 	private Integer contrato;
+	@Column(name = "idofertas")
 	private Integer idOferta;
+	@Column(name = "cantidad")
 	private Integer cantidadSolicitada;
+	@Column(name = "fecharegistro")
 	private LocalDateTime fechaRegistro;
 	private String estado;
 }

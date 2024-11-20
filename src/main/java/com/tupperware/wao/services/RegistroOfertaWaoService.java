@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tupperware.auth.entity.GrupoAplicacion;
+import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
 import com.tupperware.auth.repository.RevendedoraRepository;
 import com.tupperware.auth.repository.UserRepository;
@@ -42,12 +44,11 @@ public class RegistroOfertaWaoService {
 		String username = authUtil.getAuthenticatedUserEmail();
 		User userLogueado = userRepo.findByEmail(username);
 		
-		//if(userLogueado.getRol().getIdRol() == 2) {
-		if(userLogueado.getIdRolWeb() == 2) {
+		if(userLogueado.getIdRolWeb() == 4) {
 			// SI ENTRA AQUI ES UM Y PUEDE CARGAR
 			// OFERTAS A OTROS USUARIOS DE SU GRUPO
 			if(!esResponsableUM(userLogueado.getContrato(), contrato)) {
-				actionLogService.logAction(userLogueado.getContrato(), "RegistroOferta", "Intento de registro: contrato "+contrato+" no pertenece al grupo");
+				actionLogService.logAction(userLogueado.getContrato(), "RegistroOferta", "Intento de registro: contrato "+contrato+" no pertenece al grupo de: "+ userLogueado.getContrato());
 				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(),
 	                    "error", "El usuario no pertenece a tu grupo", 
 	                    LocalDateTime.now(), null);
@@ -55,7 +56,6 @@ public class RegistroOfertaWaoService {
 			
 		}
 		
-		//if(userLogueado.getRol().getIdRol() == 1 && !contrato.equals(userLogueado.getContrato())) {
 		if(userLogueado.getIdRolWeb() == 1 && !contrato.equals(userLogueado.getContrato())) {
 			actionLogService.logAction(userLogueado.getContrato(), "RegistroOferta", "Intento de registro: contrato "+contrato+" no pertenece al usuario");
 			return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
@@ -63,7 +63,7 @@ public class RegistroOfertaWaoService {
 	                LocalDateTime.now(), null);
 		}
 		
-		return persistirRegistroOferta(contrato, idOferta, cantidad);
+		return persistirRegistroOferta(userLogueado.getContrato(), contrato, idOferta, cantidad);
 
 	}
 	
@@ -126,7 +126,7 @@ public class RegistroOfertaWaoService {
 	    return revRepo.existsByPatrocinanteAndContrato(contratoUM, contratoUsuario);
 	}
 	
-	private ApiResponse<?> persistirRegistroOferta(Integer contrato, Integer idOferta, Integer cantidad){
+	private ApiResponse<?> persistirRegistroOferta(Integer contratoLogeado, Integer contrato, Integer idOferta, Integer cantidad){
 		
 		// Verificamos que la oferta este activa
 		Optional<OfertaWao> oferta = ofertaWao.findValidarOfertaActiva(LocalDateTime.now(), idOferta);
@@ -161,6 +161,37 @@ public class RegistroOfertaWaoService {
 					"La cantidad solicitada supera la cantidad máxima permitida para esta oferta.", 
 					LocalDateTime.now(), 
 					null);	
+		}
+		
+		//Validar que el contrato a cargar la oferta tenga asignado
+		//el grupo de aplicacion configurado en la oferta
+		
+		//1.- Validar si el contrato logeado no es igual al contrato que viene en la
+		//	  peticion
+		if(!contratoLogeado.equals(contrato)) {
+			// buscar los ID grupo aplicacion del contrato
+			Revendedora rev = revRepo.findByContrato(contrato);
+			List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
+					.map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
+					.toList(); // Convertir a una lista
+			
+//			for(Integer id : gruposUsuario) {
+//				if(id.equals(ofertaE.getIdGrupoAplicacion())) {
+//					break;
+//				}
+//			}
+			
+			boolean perteneceGrupo = gruposUsuario.stream()
+						.anyMatch(id -> id.equals(ofertaE.getIdGrupoAplicacion()));
+			
+			if(!perteneceGrupo) {
+				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
+						"error", 
+						"La oferta no esta disponible para este numero de cliente", 
+						LocalDateTime.now(), 
+						null);
+			}
+			
 		}
 		
 		try {

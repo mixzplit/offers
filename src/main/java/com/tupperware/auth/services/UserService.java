@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService {
 		}
 		// Detalle del usuario de spring security pasando por parametro
 		// el email y pass del usuario obtenido
-		UserDetails userDet = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
+		UserDetails userDet = new org.springframework.security.core.userdetails.User(user.getEmail().toString(), user.getPassword(), Collections.emptyList());
 		
 		return userDet;
 	}

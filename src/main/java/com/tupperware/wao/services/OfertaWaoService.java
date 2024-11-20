@@ -91,33 +91,56 @@ public class OfertaWaoService {
 		Revendedora rev = revRepo.findByContrato(user.getContrato());
 		String zonaUsuario = "%"+rev.getZona()+"%"; // LIKE en el Repository		
 
-		//GrupoAplicacion de la rev
-		List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
-		        .map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
-		        .toList(); // Convertir a una lista
-		
 		List<OfertaWao> ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
 		
 		if(!ofertasActivas.isEmpty()) {
+			List<OfertaWaoDTO> ofertasActivasDTO;
+			
+			//GrupoAplicacion de la rev
+			// Si es revendedora filtrar los grupos de aplicacion
+			if(user.getIdRolWeb() == 1) {
+				List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
+						.map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
+						.toList(); // Convertir a una lista
 						
-			// Convertir entidad a DTO
-			List<OfertaWaoDTO> ofertasActivasDTO = ofertasActivas.stream()
-					.filter(oferta -> gruposUsuario.contains(oferta.getIdGrupoAplicacion()))
-					.map(oferta -> new OfertaWaoDTO(
-							oferta.getId(),
-							oferta.getCodigoArticulo(),
-							oferta.getDescripcionArticulo(),
-							oferta.getAnio(),
-							oferta.getCampania(),
-							oferta.getFechaInicio(),
-							oferta.getFechaFin(),
-							oferta.getStock(),
-							oferta.getCantidadMaxRev(),
-							oferta.getIdGrupoAplicacion(),
-							oferta.getCuota(),
-							oferta.getCodigoAuxiliar(),
-							oferta.getZonasAsignadas()
-						)).collect(Collectors.toList());
+				// Convertir entidad a DTO
+				ofertasActivasDTO = ofertasActivas.stream()
+						.filter(oferta -> gruposUsuario.contains(oferta.getIdGrupoAplicacion()))
+						.map(oferta -> new OfertaWaoDTO(
+								oferta.getId(),
+								oferta.getCodigoArticulo(),
+								oferta.getDescripcionArticulo(),
+								oferta.getAnio(),
+								oferta.getCampania(),
+								oferta.getFechaInicio(),
+								oferta.getFechaFin(),
+								oferta.getStock(),
+								oferta.getCantidadMaxRev(),
+								oferta.getIdGrupoAplicacion(),
+								oferta.getCuota(),
+								oferta.getCodigoAuxiliar(),
+								oferta.getZonasAsignadas()
+							)).collect(Collectors.toList());
+			
+			}else {
+				// Convertir entidad a DTO
+				ofertasActivasDTO = ofertasActivas.stream()
+						.map(oferta -> new OfertaWaoDTO(
+								oferta.getId(),
+								oferta.getCodigoArticulo(),
+								oferta.getDescripcionArticulo(),
+								oferta.getAnio(),
+								oferta.getCampania(),
+								oferta.getFechaInicio(),
+								oferta.getFechaFin(),
+								oferta.getStock(),
+								oferta.getCantidadMaxRev(),
+								oferta.getIdGrupoAplicacion(),
+								oferta.getCuota(),
+								oferta.getCodigoAuxiliar(),
+								oferta.getZonasAsignadas()
+							)).collect(Collectors.toList());
+			}
 			
 			actionLogService.logAction(user.getContrato(), "Ofertas", "Consulta de ofertas Activas");
 			
