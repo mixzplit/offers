@@ -28,7 +28,12 @@ public class SecurityConfig {
 		
 		http.csrf(crsf -> crsf.disable())
 			.authorizeHttpRequests(requests -> requests
-						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers(
+							"/auth/**",
+							"/**",    // Si usas otra carpeta, ajusta la ruta
+		                    "/images/**"   
+						)
+						.permitAll()
 						.anyRequest().authenticated()
 					).formLogin(formLogin -> formLogin.disable())
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

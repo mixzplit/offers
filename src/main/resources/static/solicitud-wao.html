@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantalla de Ofertas</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .header {
+            background-color: #00524F;
+            color: white;
+            padding: 10px;
+        }
+        .offer-title {
+            background-color: #e9ecef;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .offer-section, .details-section {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .form-inline-center {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .details-header {
+            cursor: pointer;
+            font-weight: bold;
+            color: #00524F;
+        }
+        .table th {
+            background-color: #f1f1f1;
+        }
+        .btn-primary {
+            background-color: #00524F;
+            border-color: #00524F;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap; /* Permite que las tarjetas se ajusten en filas */
+            gap: 20px; /* Espaciado entre tarjetas */
+            justify-content: center; /* Centra las tarjetas */
+        }
+        .card {
+            flex: 1 1 calc(25% - 20px); /* Tarjetas flexibles con tamaño adaptativo */
+            max-width: 18rem; /* Ancho máximo para mantener proporción */
+        }
+        @media (max-width: 992px) {
+            .card {
+                flex: 1 1 calc(50% - 20px); /* En pantallas medianas, 2 tarjetas por fila */
+            }
+        }
+        @media (max-width: 576px) {
+            .card {
+                flex: 1 1 100%; /* En pantallas pequeñas, 1 tarjeta por fila */
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header d-flex justify-content-between align-items-center">
+    <span>Hola, <span id="user-name"></span></span>
+    <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-cierre-sesion">Cerrar Sesión</button>
+</div>
+
+<div class="container mt-4">
+    <div class="form-inline-center mt-3">
+        <h5>Cargar WAOs para:</h5>
+        <input type="text" class="form-control" id="nroClienteTxt" placeholder="N° de cliente" style="width: 15%;">
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="card-container">
+        <!-- Tarjeta 1 -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Código: 255022 | Artículo: BOWL MARAV TURQ GLITTER 1,8LT</h5>
+                <p class="card-text">Camp-Pedido entrega: 202418-2</p>
+                <p class="card-text">Fecha fin oferta: 14-11-2024 14:00</p>
+                <div class="form-inline-center mt-3">
+                    <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
+                    <button class="btn btn-primary">Solicitar</button>
+                </div>
+                <div class="error-message text-center">Error: Oferta expirada</div>
+				<div class="form-inline-center mt-3">
+				<!-- Button trigger modal -->
+					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+					  12 solicitudes
+					</button>
+				</div>
+            </div>
+        </div>
+        <!-- Tarjeta 2 -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Código: 255023 | Artículo: VASO TRANS 300ML</h5>
+                <p class="card-text">Camp-Pedido entrega: 202419-3</p>
+                <p class="card-text">Fecha fin oferta: 15-11-2024 12:00</p>
+                <div class="form-inline-center mt-3">
+                    <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
+                    <button class="btn btn-primary">Solicitar</button>
+                </div>
+                <div class="error-message text-center">Error: Cliente no pertenece a su grupo</div>
+				<div class="form-inline-center mt-3">
+				<!-- Button trigger modal -->
+					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">
+					  2 solicitudes
+					</button>
+				</div>
+            </div>
+        </div>
+        <!-- Tarjeta 3 -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Código: 255024 | Artículo: PLATO POSTRE 20CM</h5>
+                <p class="card-text">Camp-Pedido entrega: 202420-4</p>
+                <p class="card-text">Fecha fin oferta: 16-11-2024 10:00</p>
+                <div class="form-inline-center mt-3">
+                    <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
+                    <button class="btn btn-primary">Solicitar</button>
+                </div>
+                <div class="error-message text-center">Error: Cantidad máxima superada</div>
+				<div class="form-inline-center mt-3">
+				<!-- Button trigger modal -->
+					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop3" disabled>
+					  Sin solicitudes
+					</button>
+				</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1 -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Solicitudes realizadas</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+	  <!-- cuerpo del modal -->
+                <div id="details1" class="collapse show">
+                    <table class="table table-bordered mt-2" style="text-align: center;">
+                        <thead>
+                            <tr>
+                                <th>Número de cliente</th>
+                                <th>Grupo</th>
+                                <th>Nombre completo</th>
+                                <th>Cantidad solicitada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>123456</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 1</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>4444</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 2</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>77777</td>
+                                <td>Grupo C</td>
+                                <td>Nombre Apellido 3</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>234546</td>
+                                <td>Grupo B</td>
+                                <td>Nombre Apellido 4</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>123456</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 1</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>4444</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 2</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>77777</td>
+                                <td>Grupo C</td>
+                                <td>Nombre Apellido 3</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>234546</td>
+                                <td>Grupo B</td>
+                                <td>Nombre Apellido 4</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>123456</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 1</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>4444</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 2</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>77777</td>
+                                <td>Grupo C</td>
+                                <td>Nombre Apellido 3</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>234546</td>
+                                <td>Grupo B</td>
+                                <td>Nombre Apellido 4</td>
+                                <td>1</td>
+                            </tr>								
+                            <!-- Más filas de ejemplo -->
+                        </tbody>
+                    </table>
+                </div>	
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2 -->
+<div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel2" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel2">Solicitudes realizadas</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+	  <!-- cuerpor del modal -->
+                <div id="details2" class="collapse show">
+                    <table class="table table-bordered mt-2" style="text-align: center;">
+                        <thead>
+                            <tr>
+                                <th>Número de cliente</th>
+                                <th>Grupo</th>
+                                <th>Nombre completo</th>
+                                <th>Cantidad solicitada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>123456</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 1</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>4444</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 2</td>
+                                <td>3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>	
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3 -->
+<div class="modal fade" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel3" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel3">Solicitudes realizadas</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+                <div id="details3" class="collapse show">
+                    <table class="table table-bordered mt-2" style="text-align: center;">
+                        <thead>
+                            <tr>
+                                <th>Número de cliente</th>
+                                <th>Grupo</th>
+                                <th>Nombre completo</th>
+                                <th>Cantidad solicitada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>123456</td>
+                                <td>Grupo A</td>
+                                <td>Nombre Apellido 1</td>
+                                <td>1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<template id="card-template">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title"></h5>
+            <p class="card-text camp-pedido"></p>
+            <p class="card-text fecha-fin"></p>
+            <div class="form-inline-center mt-3">
+                <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
+                <button class="btn btn-primary">Solicitar</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<div class="card-container"></div>
+
+<div class="modal" tabindex="-1" id="modal-cierre-sesion">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar Sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Está seguro/a que quiere cerrar su sesión?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" onclick="logout()">Si</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+	checkAuthentication();
+	
+	/**
+	** Funcion para el logout
+	**/
+	function logout() {
+	    
+		// borramos el token del almacenamiento local
+	    localStorage.removeItem("authToken");
+	    
+	    //redireccionamos al login
+	    window.location.href = "login.html";
+	}
+	
+	/**
+	** Funcion que chequea la autenticacion, carga la info del usuario y busca las waos activas
+	**/
+	function checkAuthentication() {
+		
+		//obtenemos el token genrado
+	    const authToken = localStorage.getItem("authToken");
+
+		//redireccionamos en caso que no haya un token activo
+	    if (!authToken) {
+	        window.location.href = "login.html";
+	    }
+		
+		getInfoUsuario(authToken);
+		
+		getWAOS(authToken);
+	}
+	
+	function solicitarWAO(){
+		
+		//agarrar el id de la wao, la cantidad solicitada y el numero de cliente
+		
+		//llamar al endpoint que hace la solicitud de la wao para el cliente ingresado
+	
+		return "solicitada";
+	}
+	
+	function solicitudesDeLaWAO(){
+		
+		//agarrar el id de la wao
+		
+		//llamar al endpoint que muestra las solicitudes para esa wao
+		
+		//agregar restriccion para que solamente la revendedora vea sus solicitudes, la unit deberia ver todas las de su grupo
+	
+		return "viendo solicitudes";
+	}
+	
+	async function getInfoUsuario(authToken){
+		try {
+		    
+			//obtenemos la info del usuario logueado
+		    const response = await fetch("/auth/perfil", {
+		        method: "GET",
+		        headers: {
+		            "Content-Type": "application/json",
+		            "Authorization": `Bearer ${authToken}`,
+		        },
+		    });
+
+		    if (!response.ok) {
+		        throw new Error("No se pudo obtener la información del usuario.");
+		    }
+
+		    // respuesta de la peticion
+		    const data = await response.json();
+		    const userName = data.data.nombres;
+
+		    // cargamos el nombre en el campo del navbar
+		    document.getElementById("user-name").textContent = userName;
+
+		} catch (error) {
+		    console.error(error);
+		    window.location.href = "login.html";
+		}
+	}
+	
+	async function getWAOS(authToken){
+		try {
+		    
+			//const authToken = localStorage.getItem("authToken");
+			
+			//obtenemos la info del usuario logueado
+		    const response = await fetch("/ofertas/activas", {
+		        method: "GET",
+		        headers: {
+		            "Content-Type": "application/json",
+		            "Authorization": `Bearer ${authToken}`,
+		        },
+		    });
+
+		    if (!response.ok) {
+		        throw new Error('Error al obtener las ofertas activas.');
+		    }
+
+		    // respuesta de la peticion
+		    const data = await response.json();
+
+			// validamos si la respuesta contiene el cuerpo esperado
+			if (!data || !data.data || !Array.isArray(data.data)) {
+				alert("Respuesta inesperada: " + data);
+				alert("Respuesta inesperada: " + data.data);
+			    throw new Error('Formato de respuesta inesperado.');
+			}
+
+			const container = document.querySelector('.card-container');
+			const template = document.getElementById('card-template').content;
+			container.innerHTML = ''; // limpiamos ofertas anteriores
+
+			// generamos las cards dinamicamente
+			data.data.forEach((oferta) => {
+			    const card = template.cloneNode(true);
+			    card.querySelector(".card-title").textContent = 
+			        `Código: ${oferta.idOferta} | Artículo: ${oferta.descripcionArticulo}`;
+			    card.querySelector(".camp-pedido").textContent = 
+			        `Camp-Pedido entrega: ${oferta.anio}-${oferta.campania}`;
+			    card.querySelector(".fecha-fin").textContent = 
+			        `Fecha fin oferta: ${new Date(oferta.fechaFin + "Z").toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" })}`;
+			    container.appendChild(card);
+			});
+
+		} catch (error) {
+			console.error('Error:', error);
+			alert('Hubo un problema al realizar la búsqueda: ' + error);
+		}
+	}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
