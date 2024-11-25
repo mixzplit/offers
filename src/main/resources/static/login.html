@@ -47,18 +47,50 @@
     </div>
     
     <script>
-        function validateLogin() {
+        async function validateLogin() {
             var nroDoc = document.getElementById("nroDoc").value;
             var password = document.getElementById("password").value;
             var errorMessage = document.getElementById("error-message");
             errorMessage.textContent = "";
-            
-            if (nroDoc !== "usuario" || password !== "contraseña") {
-                errorMessage.textContent = "Usuario o Contraseña incorrectos";
-            } else {
-                // Redireccionar a la segunda pantalla (se puede cambiar al archivo real).
-                window.location.href = "second_screen.html";
-            }
+			
+			if (!nroDoc || !password) {
+			    errorMessage.textContent = "Por favor ingresa todos los campos";
+			    return;
+			}
+			
+			try {
+			    // llamamos al endpoint para el login
+			    const response = await fetch('/auth/login', {
+			        method: 'POST',
+			        headers: {
+			            'Content-Type': 'application/json'
+			        },
+			        body: JSON.stringify({
+			            emailDni: nroDoc,
+			            password: password
+			        })
+			    });
+
+			    const data = await response.json();
+				
+				const authToken = data.token;
+
+				// guardamos el token en localStorage
+				localStorage.setItem("authToken", authToken);
+
+				//si hubo respuesta satisfactoria, redireccionamos
+			    if (response.ok) {
+			        
+			        window.location.href = "solicitud-wao.html";
+			    } else {
+			        
+			        errorMessage.textContent = data.message || "Error al iniciar sesión";
+			    }
+			} catch (error) {
+			    
+			    errorMessage.textContent = "Error al conectar con el servidor";
+			    console.error("Error:", error);
+			}
         }
     </script>
 </body>

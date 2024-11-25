@@ -72,15 +72,14 @@
 </head>
 <body>
 <div class="header d-flex justify-content-between align-items-center">
-    <span>Hola, Nombre Usuario</span>
-    <button class="btn btn-sm btn-light">Cerrar Sesión</button>
+    <span>Hola, <span id="user-name"></span></span>
+    <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-cierre-sesion">Cerrar Sesión</button>
 </div>
 
 <div class="container mt-4">
     <div class="form-inline-center mt-3">
-        <h5>Buscar WAOs para:</h5>
+        <h5>Cargar WAOs para:</h5>
         <input type="text" class="form-control" id="nroClienteTxt" placeholder="N° de cliente" style="width: 15%;">
-        <button type="button" class="btn btn-primary" id="buscarBtn">Buscar</button>
     </div>
 </div>
 
@@ -345,55 +344,61 @@
         </div>
     </div>
 </template>
+
 <div class="card-container"></div>
+
+<div class="modal" tabindex="-1" id="modal-cierre-sesion">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cerrar Sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Está seguro/a que quiere cerrar su sesión?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" onclick="logout()">Si</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <script>
 
-	document.getElementById('buscarBtn').addEventListener('click', function () {
+	checkAuthentication();
 	
-		// obtenemos el numero de cliente ingresado
-		const cliente = document.getElementById('nroClienteTxt').value;
+	/**
+	** Funcion para el logout
+	**/
+	function logout() {
+	    
+		// borramos el token del almacenamiento local
+	    localStorage.removeItem("authToken");
+	    
+	    //redireccionamos al login
+	    window.location.href = "login.html";
+	}
+	
+	/**
+	** Funcion que chequea la autenticacion, carga la info del usuario y busca las waos activas
+	**/
+	function checkAuthentication() {
+		
+		//obtenemos el token genrado
+	    const authToken = localStorage.getItem("authToken");
 
-		// validamos que el campo no este vacio
-		if (!cliente) {
-			alert('Por favor, ingrese un número de cliente.');
-			return;
-		}
-
-		// llamamos a la API
-		fetch('/api/buscar-waos', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ numeroCliente: cliente }),
-		})
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('Error al consultar la API');
-				}
-				return response.json();
-			})
-			.then(data => {
-			
-				const container = document.querySelector('.card-container');
-				const template = document.getElementById('card-template').content;
-				container.innerHTML = ''; // limpiamos las ofertas anteriores
-
-				data.forEach(oferta => {
-					const card = template.cloneNode(true);
-					card.querySelector('.card-title').textContent = `Código: ${oferta.codigo} | Artículo: ${oferta.articulo}`;
-					card.querySelector('.camp-pedido').textContent = `Camp-Pedido entrega: ${oferta.campPedidoEntrega}`;
-					card.querySelector('.fecha-fin').textContent = `Fecha fin oferta: ${new Date(oferta.fechaFinOferta).toLocaleString()}`;
-					container.appendChild(card);
-				});
-			})
-			.catch(error => {
-				console.error('Error:', error);
-				alert('Hubo un problema al realizar la búsqueda.');
-			});
-	});
+		//redireccionamos en caso que no haya un token activo
+	    if (!authToken) {
+	        window.location.href = "login.html";
+	    }
+		
+		getInfoUsuario(authToken);
+		
+		getWAOS(authToken);
+	}
 	
 	function solicitarWAO(){
 		
@@ -413,6 +418,85 @@
 		//agregar restriccion para que solamente la revendedora vea sus solicitudes, la unit deberia ver todas las de su grupo
 	
 		return "viendo solicitudes";
+	}
+	
+	async function getInfoUsuario(authToken){
+		try {
+		    
+			//obtenemos la info del usuario logueado
+		    const response = await fetch("/auth/perfil", {
+		        method: "GET",
+		        headers: {
+		            "Content-Type": "application/json",
+		            "Authorization": `Bearer ${authToken}`,
+		        },
+		    });
+
+		    if (!response.ok) {
+		        throw new Error("No se pudo obtener la información del usuario.");
+		    }
+
+		    // respuesta de la peticion
+		    const data = await response.json();
+		    const userName = data.data.nombres;
+
+		    // cargamos el nombre en el campo del navbar
+		    document.getElementById("user-name").textContent = userName;
+
+		} catch (error) {
+		    console.error(error);
+		    window.location.href = "login.html";
+		}
+	}
+	
+	async function getWAOS(authToken){
+		try {
+		    
+			//const authToken = localStorage.getItem("authToken");
+			
+			//obtenemos la info del usuario logueado
+		    const response = await fetch("/ofertas/activas", {
+		        method: "GET",
+		        headers: {
+		            "Content-Type": "application/json",
+		            "Authorization": `Bearer ${authToken}`,
+		        },
+		    });
+
+		    if (!response.ok) {
+		        throw new Error('Error al obtener las ofertas activas.');
+		    }
+
+		    // respuesta de la peticion
+		    const data = await response.json();
+
+			// validamos si la respuesta contiene el cuerpo esperado
+			if (!data || !data.data || !Array.isArray(data.data)) {
+				alert("Respuesta inesperada: " + data);
+				alert("Respuesta inesperada: " + data.data);
+			    throw new Error('Formato de respuesta inesperado.');
+			}
+
+			const container = document.querySelector('.card-container');
+			const template = document.getElementById('card-template').content;
+			container.innerHTML = ''; // limpiamos ofertas anteriores
+
+			// generamos las cards dinamicamente
+			data.data.forEach((oferta) => {
+			    const card = template.cloneNode(true);
+			    card.querySelector(".card-title").textContent = 
+			        `Código: ${oferta.idOferta} | Artículo: ${oferta.descripcionArticulo}`;
+			    card.querySelector(".camp-pedido").textContent = 
+			        `Camp-Pedido entrega: ${oferta.anio}-${oferta.campania}`;
+			    card.querySelector(".fecha-fin").textContent = 
+			        `Fecha fin oferta: ${new Date(oferta.fechaFin + "Z").toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" })}`;
+			    container.appendChild(card);
+			});
+
+		} catch (error) {
+			console.error('Error:', error);
+			alert('Hubo un problema al realizar la búsqueda: ' + error);
+		}
 	}
 </script>
 
