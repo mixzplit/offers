@@ -1,6 +1,6 @@
 # Documentación de la API
 
-![Maven Central Version](https://img.shields.io/maven-central/v/org.springframework.boot/spring-boot-starter-parent?label=Spring%20Boot&color=brightgreen)
+![SpringBoot](https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen)
 ![Java Version](https://img.shields.io/badge/Java-22-orange)
 
 ## Introducción

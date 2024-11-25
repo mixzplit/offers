@@ -12,12 +12,18 @@ public class AutenticacionUtil {
 	 * @return
 	 */
 	public String getAuthenticatedUserEmail() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
+		try {
+			Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	        
+	        if (principal instanceof UserDetails) {
+	            return ((UserDetails) principal).getUsername();
+	        } else {
+	            return principal.toString();
+	        }
+		} catch (Exception e) {
+            // Manejar el error, por ejemplo, registrando la excepción
+            System.err.println("Error al obtener el email del usuario autenticado: " + e.getMessage());
+            return null; // Retornar null en caso de error
         }
     }
 }

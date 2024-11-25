@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Define el formato de tiempo -->
+    <timestamp key="date" datePattern="yyyy-MM-dd"/>
+
+    <!-- Appender para logs rotativos -->
+    <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/app-ofertas-${date}.log</file>
+        <!-- Rolling Policy: Controla la rotación de archivos -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Formato para los archivos rotados -->
+            <fileNamePattern>logs/app-ofertas.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- Tamaño máximo de cada archivo -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- Máximo tiempo para cada archivo (opcional) -->
+            <maxHistory>7</maxHistory> <!-- Mantiene los últimos 7 días -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root Logger -->
+    <root level="info">
+        <appender-ref ref="ROLLING" />
+    </root>
+</configuration>

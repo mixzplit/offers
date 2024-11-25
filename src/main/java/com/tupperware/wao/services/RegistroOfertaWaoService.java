@@ -3,6 +3,9 @@ package com.tupperware.wao.services;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,9 +24,14 @@ import com.tupperware.wao.entity.RegistroOfertaWao;
 import com.tupperware.wao.repository.OfertaWaoRepository;
 import com.tupperware.wao.repository.RegistroOfertaWaoRepository;
 
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PessimisticLockException;
+
 
 @Service
 public class RegistroOfertaWaoService {
+	private static final Logger logger = LoggerFactory.getLogger(RegistroOfertaWaoService.class);
+	
 	@Autowired
 	RegistroOfertaWaoRepository registroOferta;
 	@Autowired
@@ -42,7 +50,7 @@ public class RegistroOfertaWaoService {
 		String username = authUtil.getAuthenticatedUserEmail();
 		User userLogueado = userRepo.findByDni(Integer.valueOf(username));
 		
-		if(userLogueado.getIdRolWeb() == 4) {
+		if(userLogueado.getIdRolWeb() == 4 && !userLogueado.getContrato().equals(contrato) ) {
 			// SI ENTRA AQUI ES UM Y PUEDE CARGAR
 			// OFERTAS A OTROS USUARIOS DE SU GRUPO
 			if(!esResponsableUM(userLogueado.getContrato(), contrato)) {
@@ -62,7 +70,7 @@ public class RegistroOfertaWaoService {
 		}
 		
 		return persistirRegistroOferta(userLogueado.getContrato(), contrato, idOferta, cantidad);
-
+		
 	}
 	
 	/**
@@ -207,7 +215,14 @@ public class RegistroOfertaWaoService {
 			return new ApiResponse<>(HttpStatus.CREATED.value(), 
 					"Registro exitoso", "", 
 					LocalDateTime.now(), registro);
+		} catch (OptimisticLockException | PessimisticLockException e) {
+			logger.error("Conflicto de concurrencia. Por favor, intente nuevamente.", e);
+		    return new ApiResponse<>(HttpStatus.CONFLICT.value(),
+		            "error", "Conflicto de concurrencia. Por favor, intente nuevamente.",
+		            LocalDateTime.now(), null);
 		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("No se pudo registrar la oferta", e);
 			return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
 							"Error", "No se pudo registrar la oferta", 
 							LocalDateTime.now(), e.getMessage());
