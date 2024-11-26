@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ import com.tupperware.wao.repository.OfertaWaoRepository;
 
 @Service
 public class OfertaWaoService {
-	
+	private static final Logger logger = LoggerFactory.getLogger(OfertaWaoService.class);
 
 	@Autowired
 	OfertaWaoRepository oferta;
@@ -75,6 +77,7 @@ public class OfertaWaoService {
 						LocalDateTime.now(), null);
 			}
 		}catch (Exception e) {
+			logger.error("Error al obtener las ofertas", e);
 			return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
 					"Error:"+ e.getMessage(), "Error al obtener las ofertas", 
 					LocalDateTime.now(), null);
@@ -132,6 +135,7 @@ public class OfertaWaoService {
 						LocalDateTime.now(), null);
 			}
 		}catch (Exception e) {
+			logger.error("Error al obtener las ofertas activas", e);
 			return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
 					"Error:"+ e.getMessage(), "Error al obtener las ofertas activas", 
 					LocalDateTime.now(), null);

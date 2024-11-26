@@ -102,6 +102,7 @@ public class RegistroOfertaWaoService {
 					"fetched", 
 					LocalDateTime.now(), ofertas);
 		} catch (Exception e) {
+			logger.error("Error al obtener las ofertas del usuario", e);
 			return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
 					"Error:"+ e.getMessage(), "Error al obtener las ofertas del usuario", 
 					LocalDateTime.now(), null);
