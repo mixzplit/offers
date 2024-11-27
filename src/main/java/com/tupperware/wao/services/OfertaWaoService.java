@@ -18,6 +18,7 @@ import com.tupperware.auth.repository.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
 import com.tupperware.utils.AutenticacionUtil;
+import com.tupperware.wao.dto.DetalleSolicitudDTO;
 import com.tupperware.wao.dto.OfertaWaoDTO;
 import com.tupperware.wao.entity.OfertaWao;
 import com.tupperware.wao.repository.OfertaWaoRepository;
@@ -141,6 +142,27 @@ public class OfertaWaoService {
 					"Error:"+ e.getMessage(), "Error al obtener las ofertas activas", 
 					LocalDateTime.now(), null);
 		}
+	}
+	
+	
+	public ApiResponse<List<DetalleSolicitudDTO>> detalleSolicitudes(Integer idOferta){
+		
+		String username = authUtil.getAuthenticatedUserEmail();
+		
+		User user = userRepo.findByDni(Integer.valueOf(username));
+		//Revendedora rev = revRepo.findByContrato(user.getContrato());
+		
+		List<Object[]> result = oferta.detalleSolicitudesPorPerfilYOferta(user.getIdRolWeb(), user.getContrato(), idOferta);
+		
+		List<DetalleSolicitudDTO> detalleSolicitud = result.stream()
+							.map(detalle -> new DetalleSolicitudDTO((Integer)detalle[0], (Integer) detalle[1],
+																	(String) detalle[2],(Integer) detalle[3]))
+							.collect(Collectors.toList());
+		
+		return new ApiResponse<>(HttpStatus.OK.value(), 
+				"sucess", 
+				"fetched", 
+				LocalDateTime.now(), detalleSolicitud);
 	}
 	
 	/**

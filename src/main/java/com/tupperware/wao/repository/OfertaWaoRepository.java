@@ -38,7 +38,14 @@ public interface OfertaWaoRepository extends JpaRepository<OfertaWao, Integer> {
 			@Param("zonaUsuario") String zonaUsuario);
 	
 	
-	
+	/**
+	 * Cantidad de solicitudes segun perfil,
+	 * usuario logeado e id de la oferta
+	 * @param idPerfil
+	 * @param contratoUsuario
+	 * @param idOferta
+	 * @return
+	 */
 	@Query("SELECT COUNT(r.id) " +
 		       "FROM RegistroOfertaWao r " +
 		       "JOIN Revendedora rev ON r.contrato = rev.contrato " +
@@ -50,5 +57,25 @@ public interface OfertaWaoRepository extends JpaRepository<OfertaWao, Integer> {
 		        @Param("contratoUsuario") Integer contratoUsuario,
 		        @Param("idOferta") Integer idOferta);
 
+
+	/**
+	 * detalle de las ofertas registradas
+	 * segun perfil, usuario logeado y id
+	 * de la oferta
+	 * @param idPerfil
+	 * @param contratoUsuario
+	 * @param idOferta
+	 * @return
+	 */
+	@Query("SELECT rev.contrato, rev.grupo, rev.nombres, r.cantidadSolicitada " +
+		       "FROM RegistroOfertaWao r " +
+		       "JOIN Revendedora rev ON r.contrato = rev.contrato " +
+		       "WHERE r.idOferta = :idOferta " +
+		       "AND ((:idPerfil = 1 AND rev.contrato = :contratoUsuario) " +
+		       "OR (:idPerfil = 4 AND (rev.contrato = :contratoUsuario OR rev.patrocinante = :contratoUsuario)))")
+	List<Object[]> detalleSolicitudesPorPerfilYOferta(
+		        @Param("idPerfil") Integer idPerfil,
+		        @Param("contratoUsuario") Integer contratoUsuario,
+		        @Param("idOferta") Integer idOferta);
 	
 }

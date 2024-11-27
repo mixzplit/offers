@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tupperware.responses.ApiResponse;
+import com.tupperware.wao.dto.DetalleSolicitudDTO;
 import com.tupperware.wao.dto.OfertaUsuarioDTO;
 import com.tupperware.wao.dto.OfertaWaoDTO;
 import com.tupperware.wao.dto.RegistroOfertaWaoDTO;
@@ -70,4 +72,10 @@ public class OfertasWaoController {
 		return ResponseEntity.status(ofertasUsuario.getStatusCode()).body(ofertasUsuario);
 	}
 	
+	@GetMapping("/detalle/{id}")
+	public ResponseEntity<ApiResponse<List<DetalleSolicitudDTO>>> obtenerDetalleSolicitudes(@PathVariable Integer id){
+		ApiResponse<List<DetalleSolicitudDTO>> detalleSolicitudes = ofertaService.detalleSolicitudes(id);
+		
+		return ResponseEntity.status(detalleSolicitudes.getStatusCode()).body(detalleSolicitudes);
+	}
 }
