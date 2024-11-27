@@ -61,7 +61,8 @@ public class OfertaWaoService {
 								oferta.getIdGrupoAplicacion(),
 								oferta.getCuota(),
 								oferta.getCodigoAuxiliar(),
-								oferta.getZonasAsignadas()
+								oferta.getZonasAsignadas(),
+								1L
 							)).collect(Collectors.toList());
 				
 				actionLogService.logAction(user.getContrato(), "Ofertas", "Consulta de todas las ofertas");
@@ -114,12 +115,12 @@ public class OfertaWaoService {
 					// Convertir entidad a DTO
 					ofertasActivasDTO = ofertasActivas.stream()
 							.filter(oferta -> gruposUsuario.contains(oferta.getIdGrupoAplicacion()))
-							.map(oferta -> convertirOfertaADTO(oferta)).collect(Collectors.toList());
+							.map(oferta -> convertirOfertaADTO(oferta, user, rev)).collect(Collectors.toList());
 				
 				}else {
 					// Convertir entidad a DTO
 					ofertasActivasDTO = ofertasActivas.stream()
-							.map(oferta -> convertirOfertaADTO(oferta)).collect(Collectors.toList());
+							.map(oferta -> convertirOfertaADTO(oferta, user, rev)).collect(Collectors.toList());
 				}
 				
 				actionLogService.logAction(user.getContrato(), "Ofertas", "Consulta de ofertas Activas");
@@ -147,21 +148,29 @@ public class OfertaWaoService {
 	 * @param oferta
 	 * @return
 	 */
-	private OfertaWaoDTO convertirOfertaADTO(OfertaWao oferta) {
+	private OfertaWaoDTO convertirOfertaADTO(OfertaWao ofertaWao, User user, Revendedora rev) {
+		// Calcula el conteo según el perfil y la oferta
+	    Long cantidadSolicitudes = oferta.countSolicitudesPorPerfilYOferta(
+	            user.getIdRolWeb(),
+	            user.getContrato(),
+	            ofertaWao.getId()
+	    );
+	    
 	    return new OfertaWaoDTO(
-	        oferta.getId(),
-	        oferta.getCodigoArticulo(),
-	        oferta.getDescripcionArticulo(),
-	        oferta.getAnio(),
-	        oferta.getCampania(),
-	        oferta.getFechaInicio(),
-	        oferta.getFechaFin(),
-	        oferta.getStock(),
-	        oferta.getCantidadMaxRev(),
-	        oferta.getIdGrupoAplicacion(),
-	        oferta.getCuota(),
-	        oferta.getCodigoAuxiliar(),
-	        oferta.getZonasAsignadas()
+	        ofertaWao.getId(),
+	        ofertaWao.getCodigoArticulo(),
+	        ofertaWao.getDescripcionArticulo(),
+	        ofertaWao.getAnio(),
+	        ofertaWao.getCampania(),
+	        ofertaWao.getFechaInicio(),
+	        ofertaWao.getFechaFin(),
+	        ofertaWao.getStock(),
+	        ofertaWao.getCantidadMaxRev(),
+	        ofertaWao.getIdGrupoAplicacion(),
+	        ofertaWao.getCuota(),
+	        ofertaWao.getCodigoAuxiliar(),
+	        ofertaWao.getZonasAsignadas(),
+	        cantidadSolicitudes
 	    );
 	}
 		

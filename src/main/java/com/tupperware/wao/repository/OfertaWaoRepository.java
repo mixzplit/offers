@@ -37,4 +37,18 @@ public interface OfertaWaoRepository extends JpaRepository<OfertaWao, Integer> {
 			@Param("fechaActual") LocalDateTime fechaActual,
 			@Param("zonaUsuario") String zonaUsuario);
 	
+	
+	
+	@Query("SELECT COUNT(r.id) " +
+		       "FROM RegistroOfertaWao r " +
+		       "JOIN Revendedora rev ON r.contrato = rev.contrato " +
+		       "WHERE r.idOferta = :idOferta " +
+		       "AND ((:idPerfil = 1 AND rev.contrato = :contratoUsuario) " +
+		       "OR (:idPerfil = 4 AND (rev.contrato = :contratoUsuario OR rev.patrocinante = :contratoUsuario)))")
+	Long countSolicitudesPorPerfilYOferta(
+		        @Param("idPerfil") Integer idPerfil,
+		        @Param("contratoUsuario") Integer contratoUsuario,
+		        @Param("idOferta") Integer idOferta);
+
+	
 }
