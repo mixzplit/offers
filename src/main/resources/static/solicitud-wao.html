@@ -3,24 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pantalla de Ofertas</title>
+    <title>Ofertas WAO</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #ffffff;
             color: #000000;
+			padding-top: 120px;
         }
         .header {
             background-color: #00524F;
             color: white;
             padding: 10px;
         }
+		.barra-superior {
+		    z-index: 1030; /* Asegura que la barra esté encima de otros elementos */
+		}
+		.container {
+		    position: relative; /* Asegura que el contenedor respete el flujo */
+		}
         .offer-title {
             background-color: #e9ecef;
             padding: 10px;
             cursor: pointer;
             font-weight: bold;
         }
+		.wao-request-box {
+		    background-color: #ffffff; /* Fondo blanco */
+		    border: 1px solid #e0e0e0; /* Borde claro */
+		    border-radius: 5px; /* Bordes redondeados */
+		    padding: 15px; /* Espaciado interno */
+		    width: 90%; /* Ajuste al 80% del ancho */
+		    margin: 10px auto; /* Más espacio arriba y abajo para evitar encimado */
+		    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+			clear: both;
+		}
         .offer-section, .details-section {
             border: 1px solid #e0e0e0;
             padding: 15px;
@@ -30,6 +47,7 @@
             display: flex;
             justify-content: center;
             gap: 10px;
+			margin-top: 10px;
         }
         .details-header {
             cursor: pointer;
@@ -43,20 +61,34 @@
             background-color: #00524F;
             border-color: #00524F;
         }
+		.btn-outline-logout {
+		            background-color: #00524F;
+		            border-color:  #ffffff;
+					color: #ffffff;
+					transition: all 0.3s ease;
+		}
+		.btn-outline-logout:hover {
+		    background-color: #ffffff;
+		    color: #00524F;
+		    border-color: #00524F;
+		}
         .error-message {
             color: red;
             font-size: 0.9em;
             margin-top: 5px;
         }
         .card-container {
+			margin-top: calc(80px); /* Altura de nav más un espacio adicional */
             display: flex;
             flex-wrap: wrap; /* Permite que las tarjetas se ajusten en filas */
             gap: 20px; /* Espaciado entre tarjetas */
             justify-content: center; /* Centra las tarjetas */
+			
         }
         .card {
             flex: 1 1 calc(25% - 20px); /* Tarjetas flexibles con tamaño adaptativo */
-            max-width: 18rem; /* Ancho máximo para mantener proporción */
+            max-width: 18rem; /* Ancho máximo para mantener proporción */ 
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
         }
         @media (max-width: 992px) {
             .card {
@@ -71,282 +103,51 @@
     </style>
 </head>
 <body>
-<div class="header d-flex justify-content-between align-items-center">
-    <span>Hola, <span id="user-name"></span></span>
-    <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modal-cierre-sesion">Cerrar Sesión</button>
+<div>
+	<nav class="barra-superior fixed-top">
+		<div class="header d-flex justify-content-between align-items-center">
+		    <span>Hola, <span id="user-name"></span></span>
+		    <button type="button" class="btn btn-outline-logout" data-bs-toggle="modal" data-bs-target="#modal-cierre-sesion">Cerrar Sesión</button>
+		</div>
+		
+		<div class="container mt-4">
+			<div class="wao-request-box" id="recuadro-menu">
+			    <div class="form-inline-center mt-3 d-flex align-items-center">
+			        <h5 class="mb-0 mr-2">Solicitar WAOs para:</h5>
+			        <input type="number" class="form-control text-center" id="nroClienteNbr" placeholder="N° Cliente" style="width: 120px;" min="0">
+			    </div>
+			</div>
+		</div>
+	</nav>
+	<div class="card-container"></div>
 </div>
 
-<div class="container mt-4">
-    <div class="form-inline-center mt-3">
-        <h5>Cargar WAOs para:</h5>
-        <input type="text" class="form-control" id="nroClienteTxt" placeholder="N° de cliente" style="width: 15%;">
-    </div>
-</div>
 
-<div class="container mt-4">
-    <div class="card-container">
-        <!-- Tarjeta 1 -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Código: 255022 | Artículo: BOWL MARAV TURQ GLITTER 1,8LT</h5>
-                <p class="card-text">Camp-Pedido entrega: 202418-2</p>
-                <p class="card-text">Fecha fin oferta: 14-11-2024 14:00</p>
-                <div class="form-inline-center mt-3">
-                    <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
-                    <button class="btn btn-primary">Solicitar</button>
-                </div>
-                <div class="error-message text-center">Error: Oferta expirada</div>
-				<div class="form-inline-center mt-3">
-				<!-- Button trigger modal -->
-					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-					  12 solicitudes
-					</button>
-				</div>
-            </div>
-        </div>
-        <!-- Tarjeta 2 -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Código: 255023 | Artículo: VASO TRANS 300ML</h5>
-                <p class="card-text">Camp-Pedido entrega: 202419-3</p>
-                <p class="card-text">Fecha fin oferta: 15-11-2024 12:00</p>
-                <div class="form-inline-center mt-3">
-                    <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
-                    <button class="btn btn-primary">Solicitar</button>
-                </div>
-                <div class="error-message text-center">Error: Cliente no pertenece a su grupo</div>
-				<div class="form-inline-center mt-3">
-				<!-- Button trigger modal -->
-					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">
-					  2 solicitudes
-					</button>
-				</div>
-            </div>
-        </div>
-        <!-- Tarjeta 3 -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Código: 255024 | Artículo: PLATO POSTRE 20CM</h5>
-                <p class="card-text">Camp-Pedido entrega: 202420-4</p>
-                <p class="card-text">Fecha fin oferta: 16-11-2024 10:00</p>
-                <div class="form-inline-center mt-3">
-                    <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
-                    <button class="btn btn-primary">Solicitar</button>
-                </div>
-                <div class="error-message text-center">Error: Cantidad máxima superada</div>
-				<div class="form-inline-center mt-3">
-				<!-- Button trigger modal -->
-					<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop3" disabled>
-					  Sin solicitudes
-					</button>
-				</div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal 1 -->
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel">Solicitudes realizadas</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-	  <!-- cuerpo del modal -->
-                <div id="details1" class="collapse show">
-                    <table class="table table-bordered mt-2" style="text-align: center;">
-                        <thead>
-                            <tr>
-                                <th>Número de cliente</th>
-                                <th>Grupo</th>
-                                <th>Nombre completo</th>
-                                <th>Cantidad solicitada</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>123456</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 1</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>4444</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 2</td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <td>77777</td>
-                                <td>Grupo C</td>
-                                <td>Nombre Apellido 3</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <td>234546</td>
-                                <td>Grupo B</td>
-                                <td>Nombre Apellido 4</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>123456</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 1</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>4444</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 2</td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <td>77777</td>
-                                <td>Grupo C</td>
-                                <td>Nombre Apellido 3</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <td>234546</td>
-                                <td>Grupo B</td>
-                                <td>Nombre Apellido 4</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>123456</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 1</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>4444</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 2</td>
-                                <td>3</td>
-                            </tr>
-                            <tr>
-                                <td>77777</td>
-                                <td>Grupo C</td>
-                                <td>Nombre Apellido 3</td>
-                                <td>2</td>
-                            </tr>
-                            <tr>
-                                <td>234546</td>
-                                <td>Grupo B</td>
-                                <td>Nombre Apellido 4</td>
-                                <td>1</td>
-                            </tr>								
-                            <!-- Más filas de ejemplo -->
-                        </tbody>
-                    </table>
-                </div>	
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Modal 2 -->
-<div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel2" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel2">Solicitudes realizadas</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-	  <!-- cuerpor del modal -->
-                <div id="details2" class="collapse show">
-                    <table class="table table-bordered mt-2" style="text-align: center;">
-                        <thead>
-                            <tr>
-                                <th>Número de cliente</th>
-                                <th>Grupo</th>
-                                <th>Nombre completo</th>
-                                <th>Cantidad solicitada</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>123456</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 1</td>
-                                <td>1</td>
-                            </tr>
-                            <tr>
-                                <td>4444</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 2</td>
-                                <td>3</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>	
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal 3 -->
-<div class="modal fade" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel3" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel3">Solicitudes realizadas</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-                <div id="details3" class="collapse show">
-                    <table class="table table-bordered mt-2" style="text-align: center;">
-                        <thead>
-                            <tr>
-                                <th>Número de cliente</th>
-                                <th>Grupo</th>
-                                <th>Nombre completo</th>
-                                <th>Cantidad solicitada</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>123456</td>
-                                <td>Grupo A</td>
-                                <td>Nombre Apellido 1</td>
-                                <td>1</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- template para el modal de la card para la WAO -->
 <template id="card-template">
-    <div class="card">
+    <div class="card mb-3 shadow-sm d-flex flex-column" style="height: 100%;">
         <div class="card-body">
             <h5 class="card-title"></h5>
             <p class="card-text camp-pedido"></p>
             <p class="card-text fecha-fin"></p>
-            <div class="form-inline-center mt-3">
-                <input type="number" class="form-control" placeholder="Cant." style="width: 100px;">
-                <button class="btn btn-primary">Solicitar</button>
+			<p class="card-text cantSolicitudes"></p>
+            <div class="d-flex align-items-center justify-content-center mt-auto">
+                <input type="number" class="form-control me-2 cantidad" placeholder="Cantidad" style="width: 45%;" min="0" max="100">
+                <button class="btn btn-primary solicitar-btn">Solicitar</button>
             </div>
+			<div class="error-message text-center" id="errorMsg-{idOferta}"></div>
+			<div class="form-inline-center mt-3">
+			<!-- modal de solicitudes -->
+				<button type="button" class="btn btn-outline-secondary verSolicitudes-btn" data-bs-toggle="modal" data-bs-target="">Ver solicitudes</button>
+			</div>
         </div>
     </div>
 </template>
 
-<div class="card-container"></div>
 
+<!-- modal para el popup cierre de sesion -->
 <div class="modal" tabindex="-1" id="modal-cierre-sesion">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -364,6 +165,41 @@
     </div>
   </div>
 </div>
+
+<!-- template para el modal de ver solicitudes -->
+<template id="modal-template">
+  <div class="modal fade" id="modal-{idOferta}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="label-{idOferta}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="label-{idOferta}">Solicitudes realizadas</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="details-{idOferta}" class="collapse show">
+            <table class="table table-bordered mt-2" style="text-align: center;">
+              <thead>
+                <tr>
+                  <th>Número de cliente</th>
+                  <th>Grupo</th>
+                  <th>Nombre completo</th>
+                  <th>Cantidad solicitada</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Las filas se llenan dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 
 
 <script>
@@ -392,6 +228,7 @@
 
 		//redireccionamos en caso que no haya un token activo
 	    if (!authToken) {
+			alert("Su sesión ha caducado, vuelva a iniciar la misma.");
 	        window.location.href = "login.html";
 	    }
 		
@@ -400,26 +237,157 @@
 		getWAOS(authToken);
 	}
 	
-	function solicitarWAO(){
+	/**
+	** Funcion que hace la reserva de la wao
+	**/
+	async function solicitarWAO(idOferta, cantidad){
 		
-		//agarrar el id de la wao, la cantidad solicitada y el numero de cliente
+		if(!checkIsAValidToken()){
+			return;
+		}
 		
-		//llamar al endpoint que hace la solicitud de la wao para el cliente ingresado
-	
-		return "solicitada";
+		//vaciamos los mensajes de error viejos
+		cargarMensajeError(idOferta, "");
+		
+		//agarrar el numero de cliente de nroClienteNbr
+		const nroCliente = document.getElementById("nroClienteNbr").value;
+		
+		if (!nroCliente) {
+		    alert("Debe ingresar un número de cliente válido.");
+		    return;
+		}
+		
+		if(!cantidad || cantidad <= 0){
+			cargarMensajeError(idOferta, "Debe solicitar al menos 1 unidad para la WAO.");
+			return;
+		}
+		
+		try {
+		    
+			const authToken = localStorage.getItem("authToken");
+			
+			//mandamos la solicitud
+		    const response = await fetch("/ofertas/registrar", {
+		        method: "POST",
+		        headers: {
+		            "Content-Type": "application/json",
+		            "Authorization": `Bearer ${authToken}`,
+		        },
+				body: JSON.stringify({
+				    idOferta: idOferta,
+				    cantidad: parseInt(cantidad, 10),
+				    contrato: nroCliente,
+				}),
+		    });
+
+		    if (!response.ok) {
+				const errorData = await response.json();
+				const serverMessage = errorData.message || "Error desconocido al registrar la WAO.";
+				cargarMensajeError(idOferta, serverMessage);
+				throw new Error(serverMessage);
+		    }
+
+		    // respuesta de la peticion
+		    const data = await response.json();
+			
+			alert("WAO solicitada exitosamente.");
+			
+			getWAOS(authToken);
+
+		} catch (error) {
+		    console.error(error);
+			//alert("Error con la solicitud de la wao: " + error);
+		}
 	}
 	
-	function solicitudesDeLaWAO(){
+	/**
+	** Funcion que trae el detalle de todas las solicitudes para esa WAO
+	**/
+	async function solicitudesDeLaWAO(idOferta){
 		
-		//agarrar el id de la wao
+		if(!checkIsAValidToken()){
+			return;
+		}
 		
-		//llamar al endpoint que muestra las solicitudes para esa wao
-		
-		//agregar restriccion para que solamente la revendedora vea sus solicitudes, la unit deberia ver todas las de su grupo
-	
-		return "viendo solicitudes";
+		//llamamos al endpoint que muestra las solicitudes para esa wao
+		try {
+		    
+			const authToken = localStorage.getItem("authToken");
+			
+			const url = `/ofertas/detalle/${idOferta}`;
+			
+			//mandamos la solicitud
+		    const response = await fetch(url, {
+		        method: "GET",
+		        headers: {
+		            "Content-Type": "application/json",
+		            "Authorization": `Bearer ${authToken}`,
+		        },
+		    });
+
+		    if (!response.ok) {
+				const errorData = await response.json();
+				const serverMessage = errorData.message || "Error desconocido con las solicitudes de la WAO.";
+				throw new Error(serverMessage);
+		    }
+
+			// respuesta de la peticion
+			const data = await response.json();
+
+			// validamos si la respuesta contiene el cuerpo esperado
+			if (!data || !data.data || !Array.isArray(data.data)) {
+			    throw new Error('Formato de respuesta inesperado.');
+			}
+
+			// Generar el modal dinamico
+			const modalId = `modal-${idOferta}`;
+			let modalElement = document.getElementById(modalId);
+
+			if (!modalElement) {
+			  const modalTemplate = document.getElementById("modal-template").content.cloneNode(true);
+			  
+			  modalTemplate.querySelector(".modal").id = modalId;
+			  modalTemplate.querySelector(".modal-title").id = `label-${idOferta}`;
+			  modalTemplate.querySelector(".modal-body table tbody").id = `details-${idOferta}`;
+
+			  document.body.appendChild(modalTemplate);
+			  modalElement = document.getElementById(modalId);
+			}
+
+			const tableBody = modalElement.querySelector("tbody");
+			tableBody.innerHTML = ""; // Limpiar contenido previo
+
+			data.data.forEach((solicitud) => {
+			  const row = document.createElement("tr");
+			  row.innerHTML = `
+			    <td>${solicitud.contrato}</td>
+			    <td>${solicitud.grupo}</td>
+			    <td>${solicitud.nombre}</td>
+			    <td>${solicitud.cantidadSolicitada}</td>
+			  `;
+			  tableBody.appendChild(row);
+			});
+
+			const modalInstance = new bootstrap.Modal(modalElement);
+			modalInstance.show();
+			
+			// eliminamos el modal del DOM cuando se cierre
+			modalElement.addEventListener('hidden.bs.modal', () => {
+			    modalElement.remove();
+				
+				document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+			});
+			
+
+		} catch (error) {
+		    console.error(error);
+			alert("Error viendo las solicitudes de la wao: " + error);
+		}
 	}
 	
+	/**
+	** Funcion que recupera el detalle del usuario logueado
+	**/
 	async function getInfoUsuario(authToken){
 		try {
 		    
@@ -433,15 +401,27 @@
 		    });
 
 		    if (!response.ok) {
-		        throw new Error("No se pudo obtener la información del usuario.");
+				const errorData = await response.json();
+				const serverMessage = errorData.message || "Error desconocido, No se pudo obtener la información del usuario.";
+				throw new Error(serverMessage);
 		    }
 
 		    // respuesta de la peticion
 		    const data = await response.json();
 		    const userName = data.data.nombres;
+			const idRol = data.data.idPerfil;
+			const contrato = data.data.contrato;
 
 		    // cargamos el nombre en el campo del navbar
 		    document.getElementById("user-name").textContent = userName;
+			
+			if(idRol=="1"){
+				document.getElementById("nroClienteNbr").value = contrato;
+				document.getElementById("nroClienteNbr").disabled = true;
+			}else{
+				document.getElementById("nroClienteNbr").value = "";
+				document.getElementById("nroClienteNbr").disabled = false;
+			}
 
 		} catch (error) {
 		    console.error(error);
@@ -449,12 +429,18 @@
 		}
 	}
 	
+	/**
+	** Funcion que trae todas las WAOs activas
+	**/
 	async function getWAOS(authToken){
+		
+		if(!checkIsAValidToken()){
+			return;
+		}
+		
 		try {
-		    
-			//const authToken = localStorage.getItem("authToken");
 			
-			//obtenemos la info del usuario logueado
+			//obtenemos las waos activas
 		    const response = await fetch("/ofertas/activas", {
 		        method: "GET",
 		        headers: {
@@ -464,7 +450,9 @@
 		    });
 
 		    if (!response.ok) {
-		        throw new Error('Error al obtener las ofertas activas.');
+				const errorData = await response.json();
+				const serverMessage = errorData.message || "Error desconocido al obtener las ofertas activas.";
+				throw new Error(serverMessage);
 		    }
 
 		    // respuesta de la peticion
@@ -472,8 +460,6 @@
 
 			// validamos si la respuesta contiene el cuerpo esperado
 			if (!data || !data.data || !Array.isArray(data.data)) {
-				alert("Respuesta inesperada: " + data);
-				alert("Respuesta inesperada: " + data.data);
 			    throw new Error('Formato de respuesta inesperado.');
 			}
 
@@ -484,18 +470,91 @@
 			// generamos las cards dinamicamente
 			data.data.forEach((oferta) => {
 			    const card = template.cloneNode(true);
-			    card.querySelector(".card-title").textContent = 
-			        `Código: ${oferta.idOferta} | Artículo: ${oferta.descripcionArticulo}`;
-			    card.querySelector(".camp-pedido").textContent = 
-			        `Camp-Pedido entrega: ${oferta.anio}-${oferta.campania}`;
-			    card.querySelector(".fecha-fin").textContent = 
-			        `Fecha fin oferta: ${new Date(oferta.fechaFin + "Z").toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" })}`;
-			    container.appendChild(card);
+				
+				//id dinamico para los mensajes de error de cada card
+				const errorMsg = card.querySelector(".error-message");
+				errorMsg.id = `errorMsg-${oferta.idOferta}`;
+				
+			    card.querySelector(".card-title").textContent = `Código: ${oferta.idOferta} | Artículo: ${oferta.descripcionArticulo}`;
+				card.querySelector(".cantSolicitudes").textContent = `Solicitudes: ${oferta.cantidadSolicitudes}`;
+			    card.querySelector(".fecha-fin").textContent = `Fecha fin oferta: ${new Date(oferta.fechaFin + "Z").toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" })}`;
+				
+				const btnSolicitar = card.querySelector('.solicitar-btn');
+				const inputCantidad = card.querySelector('.cantidad');
+				const btnSolicitudes = card.querySelector('.verSolicitudes-btn');
+				
+				if (oferta.cantidadSolicitudes == 0) {
+				    btnSolicitudes.disabled = true;
+				} else {
+				    btnSolicitudes.disabled = false;
+				}
+			
+					//logica del boton soliticar wao cuando se haga clic
+					btnSolicitar.addEventListener('click', () => {
+					    const cantidad = inputCantidad.value;
+					    solicitarWAO(oferta.idOferta, cantidad);
+					});
+					
+					//logica del boton ver solicitudes cuando se haga clic
+					btnSolicitudes.dataset.bsTarget = `#modal-${oferta.idOferta}`;
+					btnSolicitudes.addEventListener("click", () => {
+					  solicitudesDeLaWAO(oferta.idOferta);
+					});
+				
+				container.appendChild(card);
 			});
 
 		} catch (error) {
 			console.error('Error:', error);
-			alert('Hubo un problema al realizar la búsqueda: ' + error);
+			alert('Hubo un problema al realizar la búsqueda de las WAOs: ' + error);
+		}
+	}
+	
+	/**
+	** Funcion que chequea la expiracion del token
+	**/
+	async function checkIsAValidToken(){
+		
+		const authToken = localStorage.getItem("authToken");
+		
+		if (authToken) {
+		    try {
+		        // Decodifica la parte del payload del JWT
+		        const payloadBase64 = authToken.split('.')[1];
+		        const payload = JSON.parse(atob(payloadBase64));
+
+		        if (payload.exp) {
+		            // Convierte el tiempo UNIX a una fecha legible
+		            const expirationDate = new Date(payload.exp * 1000);
+		            
+					const currentDate = new Date();
+					
+					//alert(expirationDate + " vs " + currentDate);
+
+					if (expirationDate < currentDate) {
+					    alert("Su sesión ha caducado, vuelva a iniciar la misma.");
+						localStorage.removeItem("authToken");
+						window.location.href = "login.html";
+					}
+		        }
+		    } catch (error) {
+		        console.error("Error al decodificar el token: ", error);
+		    }
+		} else {
+		    window.location.href = "login.html";
+		}
+	}
+	
+	/**
+	** Funcion generica para mostrar mensaje de error en la tarjeta
+	**/
+	function cargarMensajeError(idOferta, mensaje){
+		
+		const errorMessageId = `errorMsg-${idOferta}`;
+		const errorMessageElement = document.getElementById(errorMessageId);
+		
+		if (errorMessageElement) {
+		    errorMessageElement.textContent = mensaje;
 		}
 	}
 </script>
