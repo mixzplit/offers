@@ -129,7 +129,7 @@ public class OfertaWaoService {
 				return new ApiResponse<>(HttpStatus.NO_CONTENT.value(), 
 						HttpStatus.NO_CONTENT.name(), 
 						"", 
-						LocalDateTime.now(), null);
+						LocalDateTime.now(), Collections.emptyList()); //devolvemos una coleccion vacia para que haya cuerpo en el response
 			}
 		}catch (Exception e) {
 			return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), 

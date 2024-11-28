@@ -487,6 +487,20 @@
 				const serverMessage = errorData.message || "Error desconocido al obtener las ofertas activas.";
 				throw new Error(serverMessage);
 		    }
+			
+			const container = document.querySelector('.card-container');
+			
+			// Si no hay ofertas activas, mostramos el mensaje
+			//(mejorar el endpoint a futuro para no tener que validar aca por codeStatus)
+			if (response.status === 204) {
+			    const noOffersMessage = document.createElement("div");
+			    noOffersMessage.textContent = "No hay Ofertas WAO activas por el momento.";
+			    noOffersMessage.style.textAlign = "center";
+			    noOffersMessage.style.fontSize = "1.2em";
+			    noOffersMessage.style.color = "#555";
+			    container.appendChild(noOffersMessage);
+			    return;
+			}
 
 		    // respuesta de la peticion
 		    const data = await response.json();
@@ -496,7 +510,7 @@
 			    throw new Error('Formato de respuesta inesperado.');
 			}
 
-			const container = document.querySelector('.card-container');
+			
 			const template = document.getElementById('card-template').content;
 			container.innerHTML = ''; // limpiamos ofertas anteriores
 
