@@ -54,7 +54,7 @@
             errorMessage.textContent = "";
 			
 			if (!nroDoc || !password) {
-			    errorMessage.textContent = "Por favor ingresa todos los campos";
+			    errorMessage.textContent = "Por favor ingresá todos los campos";
 			    return;
 			}
 			
@@ -92,7 +92,7 @@
 			    }
 			} catch (error) {
 			    
-			    errorMessage.textContent = "Error al conectar con el servidor";
+			    errorMessage.textContent = error;
 			    console.error("Error:", error);
 			}
         }

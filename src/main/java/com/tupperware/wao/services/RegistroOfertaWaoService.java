@@ -131,7 +131,7 @@ public class RegistroOfertaWaoService {
 		
 		if(!oferta.isPresent()) {
 			return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), 
-					"error", "Oferta no encontrada", 
+					"error", "Oferta finalizada", 
 					LocalDateTime.now(), null);
 		}		
 		
@@ -156,7 +156,7 @@ public class RegistroOfertaWaoService {
 		if(cantidad > ofertaE.getCantidadMaxRev()) {
 			return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), 
 					"error", 
-					"La cantidad solicitada supera la cantidad máxima permitida para esta oferta.", 
+					"La cantidad solicitada supera la cantidad máxima permitida para esta oferta. Cantidad máxima permitida: " + ofertaE.getCantidadMaxRev(), 
 					LocalDateTime.now(), 
 					null);	
 		}
