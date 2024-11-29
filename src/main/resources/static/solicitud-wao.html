@@ -297,7 +297,7 @@
 			const authToken = localStorage.getItem("authToken");
 			
 			//mandamos la solicitud
-		    const response = await fetch("/ofertas/registrar", {
+		    const response = await fetch("./ofertas/registrar", {
 		        method: "POST",
 		        headers: {
 		            "Content-Type": "application/json",
@@ -344,7 +344,7 @@
 		    
 			const authToken = localStorage.getItem("authToken");
 			
-			const url = `/ofertas/detalle/${idOferta}`;
+			const url = `./ofertas/detalle/${idOferta}`;
 			
 			//mandamos la solicitud
 		    const response = await fetch(url, {
@@ -422,7 +422,7 @@
 		try {
 		    
 			//obtenemos la info del usuario logueado
-		    const response = await fetch("/auth/perfil", {
+		    const response = await fetch("./auth/perfil", {
 		        method: "GET",
 		        headers: {
 		            "Content-Type": "application/json",
@@ -474,7 +474,7 @@
 		try {
 			
 			//obtenemos las waos activas
-		    const response = await fetch("/ofertas/activas", {
+		    const response = await fetch("./ofertas/activas", {
 		        method: "GET",
 		        headers: {
 		            "Content-Type": "application/json",

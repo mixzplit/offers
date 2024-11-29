@@ -35,7 +35,7 @@
 </head>
 <body>
     <div class="login-container">
-        <img src="/images/TupperwareBrands.png" alt="Tupperware Brands" class="img-fluid mb-3">
+        <img src="./images/TupperwareBrands.png" alt="Tupperware Brands" class="img-fluid mb-3">
         <h2 class="mb-4">Ofertas WAO</h2>
         <div class="form-group mb-3">
             <input type="number" class="form-control" placeholder="Número de documento" id="nroDoc" min="0" required>
@@ -61,7 +61,7 @@
 			
 			try {
 			    // llamamos al endpoint para el login
-			    const response = await fetch('/auth/login', {
+			    const response = await fetch('./auth/login', {
 			        method: 'POST',
 			        headers: {
 			            'Content-Type': 'application/json'

@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import com.tupperware.auth.dto.UserDTO;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
@@ -87,6 +88,29 @@ public class UserService implements UserDetailsService {
 					LocalDateTime.now(), null);
 		}
 		
+	}
+	/**
+	 * Obtiene el nombre del usuario
+	 * por contrato
+	 * @param contrato
+	 * @return
+	 */
+	public ApiResponse<UserDTO> obtenerDatosUsuarioByContrato(Integer contrato){
+		
+		Revendedora rev = revRepo.findByContrato(contrato);
+		if(rev != null) {
+			UserDTO userDto = new UserDTO();
+			userDto.setNombres(rev.getNombres());
+			return new ApiResponse<>(HttpStatus.OK.value(), 
+					"success", 
+					"fetched", 
+					LocalDateTime.now(), userDto);
+		}else {
+			return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), 
+					"Usuario no encontrato", 
+					"not found", 
+					LocalDateTime.now(), null);	
+		}
 	}
 	
 
