@@ -53,23 +53,41 @@ public class AuthService {
 	private AuthResponse authenticateDni(Integer dni, String password) {
 		User user = userRepo.findByDni(dni);
 		
-		if(user != null && passwordEncoder.matches(password, user.getPassword())) {
-			String jwt = jwtUtil.generateToken(user.getDni().toString());
+		if(user != null) {
+			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
+				return new AuthResponse(
+						HttpStatus.FORBIDDEN.value(), 
+						HttpStatus.FORBIDDEN.name(), "El acceso no está disponible para los perfiles divisionales y zonales.", "");			
+			}
 			
-			actionLogService.logAction(user.getContrato(), "LogIn", "Inicio de Sesion");
-			
+			if(user != null && passwordEncoder.matches(password, user.getPassword())) {
+				String jwt = jwtUtil.generateToken(user.getDni().toString());
+				
+				actionLogService.logAction(user.getContrato(), "LogIn", "Inicio de Sesion");
+				
+				return new AuthResponse(
+						HttpStatus.OK.value(), 
+						HttpStatus.OK.name(), "", jwt);
+			}else {
+				actionLogService.logAction(user.getContrato(), "LogIn", "Credenciales Invalidas");
+				return new AuthResponse(
+						HttpStatus.UNAUTHORIZED.value(),
+						"error",
+						"Invalid credentials",
+						null
+						);
+			}
+		} else {
+			actionLogService.logAction(dni, "LogIn", "El Nro de documento no existe.");
 			return new AuthResponse(
-					HttpStatus.OK.value(), 
-					HttpStatus.OK.name(), "", jwt);
-		}else {
-			actionLogService.logAction(user.getContrato(), "LogIn", "Credenciales Invalidas");
-			return new AuthResponse(
-	                HttpStatus.UNAUTHORIZED.value(),
-	                "error",
-	                "Invalid credentials",
-	                null
-	            );
+					HttpStatus.FORBIDDEN.value(),
+					"error",
+					"El Nro de documento no existe.",
+					null
+					);
 		}
+		
+		
 	}
 	/**
 	 * Authentication by email
@@ -78,27 +96,41 @@ public class AuthService {
 	 * @return
 	 */
 	private AuthResponse authenticateEmail(String email, String password) {
-		logger.info("Buscando Usuario...");
+
 		User user = userRepo.findByEmail(email);
-		
-		if(user != null && passwordEncoder.matches(password, user.getPassword())) {
-			logger.info("Generando token...");
-			String jwt = jwtUtil.generateToken(user.getEmail());
-			logger.info("token generado!! ", jwt);
+
+		if(user != null) {
+			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
+				return new AuthResponse(
+						HttpStatus.FORBIDDEN.value(), 
+						HttpStatus.FORBIDDEN.name(), "El acceso no está disponible para los perfiles divisionales y zonales.", "");			
+			}
 			
-			actionLogService.logAction(user.getContrato(), "LogIn", "Inicio de Sesion");
 			
+			if(user != null && passwordEncoder.matches(password, user.getPassword())) {
+				String jwt = jwtUtil.generateToken(user.getEmail());
+				actionLogService.logAction(user.getContrato(), "LogIn", "Inicio de Sesion");
+			
+				return new AuthResponse(
+						HttpStatus.OK.value(), 
+						HttpStatus.OK.name(), "", jwt);
+			}else {
+				actionLogService.logAction(user.getContrato(), "LogIn", "Credenciales Invalidas");
+				return new AuthResponse(
+		                HttpStatus.UNAUTHORIZED.value(),
+		                "error",
+		                "Invalid credentials",
+		                null
+		            );
+			}
+		} else {
+			actionLogService.logAction(0, "LogIn", "El "+email+" no existe.");
 			return new AuthResponse(
-					HttpStatus.OK.value(), 
-					HttpStatus.OK.name(), "", jwt);
-		}else {
-			actionLogService.logAction(user.getContrato(), "LogIn", "Credenciales Invalidas");
-			return new AuthResponse(
-	                HttpStatus.UNAUTHORIZED.value(),
-	                "error",
-	                "Invalid credentials",
-	                null
-	            );
+					HttpStatus.FORBIDDEN.value(),
+					"error",
+					"El email ingresado no existe.",
+					null
+					);
 		}
 	}
 	
