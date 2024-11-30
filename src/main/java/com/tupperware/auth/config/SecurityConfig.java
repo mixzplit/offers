@@ -30,7 +30,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(requests -> requests
 						.requestMatchers(
 							"/auth/**",
-							"/**",    // Si usas otra carpeta, ajusta la ruta
+							"/**",
 		                    "/images/**"   
 						)
 						.permitAll()

@@ -45,7 +45,7 @@ public class RegistroOfertaWaoService {
 	@Autowired
 	AutenticacionUtil authUtil;
 	
-	@Transactional
+	@Transactional(rollbackFor = Exception.class)
 	public ApiResponse<?> registrarOfertaWao(Integer contrato, Integer idOferta, Integer cantidad){
 		String username = authUtil.getAuthenticatedUserEmail();
 		User userLogueado = userRepo.findByDni(Integer.valueOf(username));
