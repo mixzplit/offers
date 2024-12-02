@@ -211,7 +211,6 @@
 	// Seleccionar el input
 	const nroClienteInput = document.getElementById("nroClienteNbr");
 
-	// Funcion que se ejecutara al cambiar el valor
 	const handleInput = () => {
 	    const value = nroClienteInput.value;
 	    cargarInfoContratoIngresado(value);
@@ -223,9 +222,36 @@
 	/**
 	** Funcion que carga en pantalla la info del contrato ingresado
 	**/
-	function cargarInfoContratoIngresado(contrato){
+	async function cargarInfoContratoIngresado(contrato){
 		
-		document.getElementById("contrato-name").textContent = capitalizarString("COSME FULANITO FULANO.");
+		try {
+		    
+			const authToken = localStorage.getItem("authToken");
+			
+			const url = `./revendedora/${contrato}`;
+			
+			//mandamos la solicitud
+		    const response = await fetch(url, {
+		        method: "GET",
+		        headers: {
+		            "Content-Type": "application/json",
+		            "Authorization": `Bearer ${authToken}`,
+		        },
+		    });
+
+		    // respuesta de la peticion
+		    const data = await response.json();
+			
+			if(data.data != null && data.data.nombres != null && data.data.nombres.trim() != ""){
+				document.getElementById("contrato-name").textContent = capitalizarString(data.data.nombres);
+			}else{
+				document.getElementById("contrato-name").textContent = data.status;
+			}
+
+		} catch (error) {
+		    console.error(error);
+			alert("Se produjo un error al querer buscar el nombre del contrato ingresado.");
+		}
 	}
 	
 	/**
@@ -443,7 +469,7 @@
 			const contrato = data.data.contrato;
 
 		    // cargamos el nombre en el campo del navbar
-		    document.getElementById("user-name").textContent = capitalizarString(userName);
+		    document.getElementById("user-name").textContent = capitalizarString(userName) + " 👋";
 			
 			if(idRol=="1"){
 				document.getElementById("nroClienteNbr").value = contrato;
@@ -490,9 +516,17 @@
 			
 			const container = document.querySelector('.card-container');
 			
+			// respuesta de la peticion
+			const data = await response.json();
+			
+			// validamos si la respuesta contiene el cuerpo esperado
+			if (!data) {
+			    throw new Error('Formato de respuesta inesperado.');
+			}
+			
 			// Si no hay ofertas activas, mostramos el mensaje
 			//(mejorar el endpoint a futuro para no tener que validar aca por codeStatus)
-			if (response.status === 204) {
+			if (response.status === 204 || !data.data || data.data.length === 0) {
 			    const noOffersMessage = document.createElement("div");
 			    noOffersMessage.textContent = "No hay Ofertas WAO activas por el momento.";
 			    noOffersMessage.style.textAlign = "center";
@@ -501,15 +535,6 @@
 			    container.appendChild(noOffersMessage);
 			    return;
 			}
-
-		    // respuesta de la peticion
-		    const data = await response.json();
-
-			// validamos si la respuesta contiene el cuerpo esperado
-			if (!data || !data.data || !Array.isArray(data.data)) {
-			    throw new Error('Formato de respuesta inesperado.');
-			}
-
 			
 			const template = document.getElementById('card-template').content;
 			container.innerHTML = ''; // limpiamos ofertas anteriores
