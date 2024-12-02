@@ -57,7 +57,7 @@ public class AuthService {
 			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
 				return new AuthResponse(
 						HttpStatus.FORBIDDEN.value(), 
-						HttpStatus.FORBIDDEN.name(), "El acceso no está disponible para los perfiles divisionales y zonales.", "");			
+						HttpStatus.FORBIDDEN.name(), "El acceso solo está disponible para los perfiles de revendedora y UM.", "");			
 			}
 			
 			if(user != null && passwordEncoder.matches(password, user.getPassword())) {
@@ -103,7 +103,7 @@ public class AuthService {
 			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
 				return new AuthResponse(
 						HttpStatus.FORBIDDEN.value(), 
-						HttpStatus.FORBIDDEN.name(), "El acceso no está disponible para los perfiles divisionales y zonales.", "");			
+						HttpStatus.FORBIDDEN.name(), "El acceso solo está disponible para los perfiles de revendedora y UM.", "");			
 			}
 			
 			
