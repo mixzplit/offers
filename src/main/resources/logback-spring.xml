@@ -5,7 +5,7 @@
 
     <!-- Appender para logs rotativos -->
     <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/app-ofertas-${date}.log</file>
+        <file>logs/app-ofertas.log</file>
         <!-- Rolling Policy: Controla la rotación de archivos -->
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- Formato para los archivos rotados -->
