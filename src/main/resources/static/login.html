@@ -48,6 +48,16 @@
     </div>
     
     <script>
+		
+		// Detectar la tecla Enter para iniciar sesion
+		document.addEventListener('keydown', function (event) {
+		    // Verifica si la tecla presionada es "Enter" (código 13)
+		    if (event.key === 'Enter' || event.keyCode === 13) {
+		        event.preventDefault(); // Evita el comportamiento predeterminado
+		        validateLogin(); // Llama a la función del botón
+		    }
+		});
+		
         async function validateLogin() {
             var nroDoc = document.getElementById("nroDoc").value;
             var password = document.getElementById("password").value;
@@ -83,10 +93,7 @@
 			    if (response.ok) {
 			        
 			        window.location.href = "solicitud-wao.html";
-				}else if(response.status == 401){
-					errorMessage.textContent = "Credenciales incorrectas";
-				
-				}else if(response.status == 500){
+				} else if(response.status == 500){
 					errorMessage.textContent = "El Nro de documento no existe.";
 			    } else {
 			        errorMessage.textContent = data.message || "Error al iniciar sesión";
