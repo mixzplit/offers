@@ -547,7 +547,7 @@
 				const errorMsg = card.querySelector(".error-message");
 				errorMsg.id = `errorMsg-${oferta.idOferta}`;
 				
-			    card.querySelector(".card-title").textContent = `Código: ${oferta.idOferta} | Artículo: ${oferta.descripcionArticulo}`;
+			    card.querySelector(".card-title").textContent = `ID: ${oferta.idOferta} | Artículo: ${oferta.codigoArticulo} - ${oferta.descripcionArticulo}`;
 				card.querySelector(".cantSolicitudes").textContent = `Solicitudes: ${oferta.cantidadSolicitudes}`;
 			    card.querySelector(".fecha-fin").textContent = `Fecha fin oferta: ${new Date(oferta.fechaFin + "Z").toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short", timeZone: "UTC" })}`;
 				
