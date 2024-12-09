@@ -83,14 +83,14 @@
 			    });
 
 			    const data = await response.json();
-				
-				const authToken = data.token;
-
-				// guardamos el token en localStorage
-				localStorage.setItem("authToken", authToken);
 
 				//si hubo respuesta satisfactoria, redireccionamos
 			    if (response.ok) {
+					
+					const authToken = data.token;
+
+					// guardamos el token en localStorage
+					localStorage.setItem("authToken", authToken);
 			        
 			        window.location.href = "solicitud-wao.html";
 				} else if(response.status == 500){
@@ -99,8 +99,7 @@
 			        errorMessage.textContent = data.message || "Error al iniciar sesión";
 			    }
 			} catch (error) {
-			    
-			    errorMessage.textContent = error;
+			    errorMessage.textContent = "Error al iniciar sesión, vuelva a intentarlo en unos minutos.";
 			    console.error("Error:", error);
 			}
         }
