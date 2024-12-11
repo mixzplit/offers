@@ -51,6 +51,9 @@
     
     <script>
 		
+		//borramos el token viejo siempre que ingrese a esta pagina
+		localStorage.removeItem("authToken");
+		
 		// Detectar la tecla Enter para iniciar sesion
 		document.addEventListener('keydown', function (event) {
 		    // Verifica si la tecla presionada es "Enter" (código 13)

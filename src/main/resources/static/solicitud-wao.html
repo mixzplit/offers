@@ -206,18 +206,22 @@
 
 <script>
 
-	checkAuthentication();
-	
-	// Seleccionar el input
-	const nroClienteInput = document.getElementById("nroClienteNbr");
+	//si no hay problemas con la autenticacion, inicializo
+	if(checkAuthentication()){
+		
+		inicializarPantalla();
+		
+		// Seleccionar el input
+		const nroClienteInput = document.getElementById("nroClienteNbr");
 
-	const handleInput = () => {
-	    const value = nroClienteInput.value;
-	    cargarInfoContratoIngresado(value);
-	};
+		const handleInput = () => {
+		    const value = nroClienteInput.value;
+		    cargarInfoContratoIngresado(value);
+		};
 
-	// Asignar el evento al input
-	nroClienteInput.addEventListener("change", handleInput);
+		// Asignar el evento al input
+		nroClienteInput.addEventListener("change", handleInput);
+	}
 	
 	/**
 	** Funcion que carga en pantalla la info del contrato ingresado
@@ -286,10 +290,18 @@
 	    if (!authToken) {
 			alert("Su sesión ha caducado, vuelva a iniciar la misma.");
 	        window.location.href = "login.html";
+			return false;
 	    }
+		return true;
+	}
+	
+	/**
+	** Inicializamos los datos de la pantalla
+	**/
+	function inicializarPantalla(){
 		
+		const authToken = localStorage.getItem("authToken");
 		getInfoUsuario(authToken);
-		
 		getWAOS(authToken);
 	}
 	
