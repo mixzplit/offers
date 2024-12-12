@@ -30,6 +30,7 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
 - **Respuestas**:
   - `200 OK`: Devuelve un token JWT si la autenticación es exitosa.
   - `401 Unauthorized`: La autenticación falló.
+  - `403 Forbidden`: Usuario no existe o no tiene permisos de acceso
   
 
 - **Respuesta de autenticación exitosa**:
@@ -51,7 +52,26 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
     "token": null
   }
   ```
-
+  
+- **Respuesta de error usuario no existe**:
+  ```json
+  {
+    "statusCode": 403,
+    "status": "error",
+    "message": "El Nro de documento no existe.",
+    "token": null
+  }
+  ```  
+- **Respuesta de error usuario sin permisos de acceso**:
+  ```json
+  {
+    "statusCode": 403,
+    "status": "FORBIDDEN",
+    "message": "El acceso solo está disponible para los perfiles de revendedora y UM.",
+    "token": ""
+  }
+  ```
+  
 #### POST `/auth/register`
 
 - **Descripción**: Registra un nuevo usuario en el sistema.
@@ -143,7 +163,50 @@ Bienvenido a la documentación de la API de los servicios **Tupperware Auth** y 
 	    }
 	}
 	```
+	
+#### GET `/revendedora/{contrato}`
 
+- **Descripción**: Recupera el nombre del usuario segun el numero de contrato.
+- **Cabeceras**:
+  - `Authorization: Bearer <token>`: Se requiere un token JWT para la autenticación.
+- **Respuestas**:
+  - `200 OK`: Devuelve el nombre del usuario.
+  - `401 Unauthorized`: No se proporcionó una autenticación válida.
+  - `404 Not Found`: Usuario no encontrato.
+  
+- **Respuesta de autenticación exitosa**:
+  ```json
+  {
+    "statusCode": 200,
+    "status": "success",
+    "message": "fetched",
+    "requestDate": "2024-12-04T10:19:01.1886101",
+    "data": {
+        "nombres": "COSME FULANITO FULANO"
+    }
+  }
+  ```  
+- **Respuesta de error en autenticación**:
+  ```json
+  {
+    "statusCode": 401,
+    "status": "error",
+    "message": "Token expirado",
+    "requestDate": null,
+    "data": null
+  }
+  ```  
+- **Respuesta Usuario no encontrado**:
+  ```json
+  {
+    "statusCode": 404,
+    "status": "Usuario no encontrato",
+    "message": "not found",
+    "requestDate": "2024-12-04T10:21:12.6092552",
+    "data": null
+  }
+  ``` 
+  
 ---
 
 ### Servicio de Ofertas
