@@ -40,8 +40,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 		response.setContentType("application/json");
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		
-		MAPPER.writeValue(response.getWriter(), responseMap)
-;		
+		MAPPER.writeValue(response.getWriter(), responseMap);		
 	}
 
 }

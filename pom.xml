@@ -26,6 +26,29 @@
 		<tag/>
 		<url/>
 	</scm>
+	
+	<profiles>
+		<profile>
+	        <id>dev</id> <!-- TST -->
+	        <activation>
+	            <activeByDefault>true</activeByDefault>
+	        </activation>
+	        <properties>
+	            <profileActive>dev</profileActive>
+	            <build.profile.id>dev</build.profile.id>
+	        </properties>
+	    </profile>
+	    
+	    <profile>
+	        <id>prd</id> <!-- PRD -->
+	        <properties>
+	            <profileActive>prd</profileActive>
+	            <build.profile.id>prd</build.profile.id>
+	        </properties>
+    	</profile>
+	</profiles>
+	
+	
 	<properties>
 		<java.version>22</java.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
