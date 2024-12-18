@@ -1,4 +1,4 @@
-package com.tupperware.auth;
+package com.tupperware;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

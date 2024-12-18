@@ -14,9 +14,9 @@ public class UserActionLogService {
 	@Autowired
 	private UserActionLogRepository userAction;
 	
-	public void logAction(Long userId, String action, String details) {
+	public void logAction(Integer contrato, String action, String details) {
 		UserActionLog log = new UserActionLog();
-		log.setUserId(userId);
+		log.setContrato(contrato);
 		log.setAction(action);
 		log.setDetails(details);
 		log.setCreatedAt(LocalDateTime.now());

@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
@@ -22,10 +23,17 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 	
-	private String SECRET_KEY = "0f3RTawA0pAraR3v3Nd3D0r4SuN1tm4n4G3r2Yg3R3N73d1V1s10n4al";
-	Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY)); 
+	
+	private final Key key;
+	
+	@Value("${jwt.expirationMs}")
+	private Long jwtExpiration;
 	
 	
+	public JwtUtil(@Value("${jwt.secret}") String secretKet) {
+		this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKet));
+	}
+
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
 	}
@@ -56,7 +64,7 @@ public class JwtUtil {
 					.claims(claims)
 					.subject(subject)
 					.issuedAt(new Date(System.currentTimeMillis()))
-					.expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))// 1 dia
+					.expiration(new Date(System.currentTimeMillis() + jwtExpiration))// 1 dia
 					.signWith(key)
 					.compact();
 	}

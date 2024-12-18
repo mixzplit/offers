@@ -25,4 +25,5 @@ public class OfertaWaoDTO {
 	private Integer cuota;
 	private Integer codigoAuxiliar;
 	private String zonasAsignadas;
+	private Long cantidadSolicitudes;
 }

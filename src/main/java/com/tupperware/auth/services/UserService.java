@@ -11,43 +11,71 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.tupperware.auth.dto.UserDTO;
+import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
+import com.tupperware.auth.repository.RevendedoraRepository;
 import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
+import com.tupperware.utils.AutenticacionUtil;
+import com.tupperware.utils.ValidationUtil;
 
 @Service
 public class UserService implements UserDetailsService {
 
 	@Autowired
 	UserRepository userRepo;
+	@Autowired
+	RevendedoraRepository revRepo;
+	@Autowired
+	UserActionLogService actionLogService;
+	@Autowired
+	AutenticacionUtil authUtil;
 	
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		User user = userRepo.findByEmail(email);
-		if (user == null) {
-			throw new UsernameNotFoundException("Usuario no encontrado con el email: " + email);
+	public UserDetails loadUserByUsername(String identificador) throws UsernameNotFoundException {
+		User user;
+		// Validamos si el usuario inicio con DNI o Email
+		// y lo propagamos en el contexto de Spring Security
+		if(ValidationUtil.isEmail(identificador)) {
+			user = userRepo.findByEmail(identificador);
+		}else {
+			user = userRepo.findByDni(Integer.parseInt(identificador));
 		}
 		
-		UserDetails userDet = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), Collections.emptyList());
+		if (user == null) {
+			throw new UsernameNotFoundException("Usuario no encontrado con el email: " + identificador);
+		}
+		// Detalle del usuario de spring security pasando por parametro
+		// el email y pass del usuario obtenido
+		UserDetails userDet = new org.springframework.security.core.userdetails.User(user.getDni().toString(), user.getPassword(), Collections.emptyList());
 		
 		return userDet;
 	}
 	
-	public ApiResponse<UserDTO> obtenerDatosUsuario(String email){
-		User user = userRepo.findByEmail(email);
+	public ApiResponse<UserDTO> obtenerDatosUsuario(){
+		// usuario autenticado
+		String username = authUtil.getAuthenticatedUserEmail();
+		
+		User user = userRepo.findByDni(Integer.valueOf(username));
 		
 		if(user != null) {
+			Revendedora rev = revRepo.findByContrato(user.getContrato());		
 		
 			UserDTO userDto = new UserDTO();
-			userDto.setIdUsuario(user.getIdUsuario());
-			userDto.setNombres(user.getNombres());
-			userDto.setContrato(user.getContrato());
-			userDto.setDni(user.getDni());
-			userDto.setPatrocinante(user.getPatrocinante());
-			userDto.setEmail(user.getEmail());
-			userDto.setZona(user.getZona());
-			userDto.setIdPerfil(user.getRol().getNombreRol());
-			userDto.setGrupoAplicacion(user.getGrupoAplicacion());
+			//userDto.setIdUsuario(rev.getIdRevendedora());
+			userDto.setNombres(rev.getNombres());
+			userDto.setContrato(rev.getContrato());
+			userDto.setDni(rev.getDni());
+			userDto.setPatrocinante(rev.getPatrocinante());
+			userDto.setEmail(rev.getEmail());
+			userDto.setZona(rev.getZona());
+			userDto.setDivision(rev.getDivision());
+			userDto.setIdPerfil(user.getIdRolWeb());
+			userDto.setNombrePerfil(user.getNombreRol());
+			userDto.setGrupoAplicacion(rev.getGrupoAplicacion());
+			
+			actionLogService.logAction(user.getContrato(), "Perfil", "Consulta perfil Usuario");
 			
 			return new ApiResponse<>(HttpStatus.OK.value(), 
 					"success", 
@@ -60,6 +88,40 @@ public class UserService implements UserDetailsService {
 					LocalDateTime.now(), null);
 		}
 		
+	}
+	/**
+	 * Obtiene el nombre del usuario
+	 * por contrato
+	 * @param contrato
+	 * @return
+	 */
+	public ApiResponse<UserDTO> obtenerDatosUsuarioByContrato(Integer contrato){
+		
+		Revendedora rev = revRepo.findByContrato(contrato);
+		
+		
+		
+		if(rev != null) {
+			
+			if(rev.getBloqueada()==1) {
+				return new ApiResponse<>(HttpStatus.OK.value(), 
+						HttpStatus.OK.name(), 
+						"El número de cliente ingresado esta bloqueado", 
+						LocalDateTime.now(), null);
+			}
+			
+			UserDTO userDto = new UserDTO();
+			userDto.setNombres(rev.getNombres());
+			return new ApiResponse<>(HttpStatus.OK.value(), 
+					"success", 
+					"fetched", 
+					LocalDateTime.now(), userDto);
+		}else {
+			return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), 
+					"Usuario no encontrato", 
+					"not found", 
+					LocalDateTime.now(), null);	
+		}
 	}
 	
 

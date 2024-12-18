@@ -22,6 +22,9 @@ public class UserDTO {
 	private String zona;
 	private String division;
 	private String estado;
-	private String idPerfil;
+	private Integer idPerfil;
+	private String nombrePerfil;
 	private List<GrupoAplicacion> grupoAplicacion;
+	//Propiedad para usar DNI o Email para el Login
+	private String emailDni;
 }
