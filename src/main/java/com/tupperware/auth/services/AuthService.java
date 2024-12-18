@@ -119,7 +119,7 @@ public class AuthService {
 				return new AuthResponse(
 		                HttpStatus.UNAUTHORIZED.value(),
 		                "error",
-		                "Invalid credentials",
+		                "Credenciales Invalidas",
 		                null
 		            );
 			}
