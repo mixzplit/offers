@@ -178,6 +178,15 @@ public class RegistroOfertaWaoService {
 		if(!contratoLogeado.equals(contrato)) {
 			// buscar los ID grupo aplicacion del contrato
 			Revendedora rev = revRepo.findByContrato(contrato);
+			
+			if(rev.getBloqueada()==1) {
+				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
+						"error", 
+						"El número de cliente ingresado esta bloqueado", 
+						LocalDateTime.now(), 
+						null);
+			}
+			
 			List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
 					.map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
 					.toList(); // Convertir a una lista

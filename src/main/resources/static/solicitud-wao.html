@@ -248,8 +248,10 @@
 			
 			if(data.data != null && data.data.nombres != null && data.data.nombres.trim() != ""){
 				document.getElementById("contrato-name").textContent = capitalizarString(data.data.nombres);
+				document.getElementById("contrato-name").style.color = "";
 			}else{
-				document.getElementById("contrato-name").textContent = data.status;
+				document.getElementById("contrato-name").textContent = data.message;
+				document.getElementById("contrato-name").style.color = "red";
 			}
 
 		} catch (error) {

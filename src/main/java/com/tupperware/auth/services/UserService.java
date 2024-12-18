@@ -98,7 +98,18 @@ public class UserService implements UserDetailsService {
 	public ApiResponse<UserDTO> obtenerDatosUsuarioByContrato(Integer contrato){
 		
 		Revendedora rev = revRepo.findByContrato(contrato);
+		
+		
+		
 		if(rev != null) {
+			
+			if(rev.getBloqueada()==1) {
+				return new ApiResponse<>(HttpStatus.OK.value(), 
+						HttpStatus.OK.name(), 
+						"El número de cliente ingresado esta bloqueado", 
+						LocalDateTime.now(), null);
+			}
+			
 			UserDTO userDto = new UserDTO();
 			userDto.setNombres(rev.getNombres());
 			return new ApiResponse<>(HttpStatus.OK.value(), 

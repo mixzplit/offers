@@ -132,9 +132,9 @@ public class OfertaWaoService {
 						"fetched", 
 						LocalDateTime.now(), ofertasActivasDTO);
 			}else {
-				return new ApiResponse<>(HttpStatus.NO_CONTENT.value(), 
-						HttpStatus.NO_CONTENT.name(), 
-						"", 
+				return new ApiResponse<>(HttpStatus.OK.value(), 
+						HttpStatus.OK.name(), 
+						"No hay ofertas activas", 
 						LocalDateTime.now(), Collections.emptyList()); //devolvemos una coleccion vacia para que haya cuerpo en el response
 			}
 		}catch (Exception e) {
