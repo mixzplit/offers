@@ -83,8 +83,8 @@ public class UserService implements UserDetailsService {
 					LocalDateTime.now(), userDto);
 		}else {
 			return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), 
-					"Usuario no encontrato", 
-					"not found", 
+					HttpStatus.NOT_FOUND.name(), 
+					"Usuario no encontrato",  
 					LocalDateTime.now(), null);
 		}
 		
@@ -118,8 +118,8 @@ public class UserService implements UserDetailsService {
 					LocalDateTime.now(), userDto);
 		}else {
 			return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), 
+					HttpStatus.NOT_FOUND.name(), 
 					"Usuario no encontrato", 
-					"not found", 
 					LocalDateTime.now(), null);	
 		}
 	}
