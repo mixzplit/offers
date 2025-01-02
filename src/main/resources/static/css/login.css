@@ -1,0 +1,25 @@
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+			background: url('../images/Background-login2.jpg') no-repeat center center fixed;
+			background-size: cover;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+			border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .btn-custom {
+            background-color: #00524F;
+            color: white;
+        }
+        .text-error {
+            color: red;
+            margin-top: 10px;
+        }

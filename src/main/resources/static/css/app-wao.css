@@ -1,0 +1,94 @@
+body {
+            background-color: #ffffff;
+            color: #000000;
+			padding-top: 120px;
+        }
+        .header {
+            background-color: #00524F;
+            color: white;
+            padding: 10px;
+        }
+		.barra-superior {
+		    z-index: 1030; /* Asegura que la barra esté encima de otros elementos */
+		}
+		.container {
+		    position: relative; /* Asegura que el contenedor respete el flujo */
+		}
+        .offer-title {
+            background-color: #e9ecef;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+		.wao-request-box {
+		    background-color: #ffffff; /* Fondo blanco */
+		    border: 1px solid #e0e0e0; /* Borde claro */
+		    border-radius: 5px; /* Bordes redondeados */
+		    padding: 15px; /* Espaciado interno */
+		    width: 90%; /* Ajuste al 80% del ancho */
+		    margin: 10px auto; /* Más espacio arriba y abajo para evitar encimado */
+		    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+			clear: both;
+		}
+        .offer-section, .details-section {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .form-inline-center {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+			margin-top: 10px;
+        }
+        .details-header {
+            cursor: pointer;
+            font-weight: bold;
+            color: #00524F;
+        }
+        .table th {
+            background-color: #f1f1f1;
+        }
+        .btn-primary {
+            background-color: #00524F;
+            border-color: #00524F;
+        }
+		.btn-outline-logout {
+		            background-color: #00524F;
+		            border-color:  #ffffff;
+					color: #ffffff;
+					transition: all 0.3s ease;
+		}
+		.btn-outline-logout:hover {
+		    background-color: #ffffff;
+		    color: #00524F;
+		    border-color: #00524F;
+		}
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .card-container {
+			margin-top: calc(80px); /* Altura de nav más un espacio adicional */
+            display: flex;
+            flex-wrap: wrap; /* Permite que las tarjetas se ajusten en filas */
+            gap: 20px; /* Espaciado entre tarjetas */
+            justify-content: center; /* Centra las tarjetas */
+			
+        }
+        .card {
+            flex: 1 1 calc(25% - 20px); /* Tarjetas flexibles con tamaño adaptativo */
+            max-width: 18rem; /* Ancho máximo para mantener proporción */ 
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+        @media (max-width: 992px) {
+            .card {
+                flex: 1 1 calc(50% - 20px); /* En pantallas medianas, 2 tarjetas por fila */
+            }
+        }
+        @media (max-width: 576px) {
+            .card {
+                flex: 1 1 100%; /* En pantallas pequeñas, 1 tarjeta por fila */
+            }
+        }
