@@ -13,8 +13,9 @@ import org.springframework.stereotype.Service;
 import com.tupperware.auth.dto.UserDTO;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
-import com.tupperware.auth.repository.RevendedoraRepository;
-import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
+import com.tupperware.auth.repository.mariadb.RevendedoraRepository;
+import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
 import com.tupperware.utils.AutenticacionUtil;
@@ -27,6 +28,8 @@ public class UserService implements UserDetailsService {
 	UserRepository userRepo;
 	@Autowired
 	RevendedoraRepository revRepo;
+	@Autowired
+	ZonasResponsablesRepository zonaRespRepo;
 	@Autowired
 	UserActionLogService actionLogService;
 	@Autowired
@@ -58,6 +61,9 @@ public class UserService implements UserDetailsService {
 		String username = authUtil.getAuthenticatedUserEmail();
 		
 		User user = userRepo.findByDni(Integer.valueOf(username));
+		//Buscamos segun el numero de documento la/s zona/s 
+		//responsable/s del usuario logeado
+		String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(username);
 		
 		if(user != null) {
 			Revendedora rev = revRepo.findByContrato(user.getContrato());		
@@ -74,6 +80,7 @@ public class UserService implements UserDetailsService {
 			userDto.setIdPerfil(user.getIdRolWeb());
 			userDto.setNombrePerfil(user.getNombreRol());
 			userDto.setGrupoAplicacion(rev.getGrupoAplicacion());
+			userDto.setNodoResponsables(zonasResponsables);
 			
 			actionLogService.logAction(user.getContrato(), "Perfil", "Consulta perfil Usuario");
 			

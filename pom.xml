@@ -130,6 +130,20 @@
 		    <groupId>org.mockito</groupId>
 		    <artifactId>mockito-core</artifactId>
 	    </dependency>
+	    
+		<!-- https://mvnrepository.com/artifact/com.ibm.informix/jdbc -->
+		<dependency>
+		    <groupId>com.ibm.informix</groupId>
+		    <artifactId>jdbc</artifactId>
+		    <version>15.0.0.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects -->
+		<dependency>
+		    <groupId>org.hibernate.orm</groupId>
+		    <artifactId>hibernate-community-dialects</artifactId>
+		</dependency>
+
+
 
 	</dependencies>
 	<dependencyManagement>

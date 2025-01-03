@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.tupperware.auth.entity.User;
-import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.auth.utils.JwtUtil;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.AuthResponse;
@@ -54,11 +54,11 @@ public class AuthService {
 		User user = userRepo.findByDni(dni);
 		
 		if(user != null) {
-			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
-				return new AuthResponse(
-						HttpStatus.FORBIDDEN.value(), 
-						HttpStatus.FORBIDDEN.name(), "El acceso solo está disponible para los perfiles de revendedora y UM.", "");			
-			}
+//			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
+//				return new AuthResponse(
+//						HttpStatus.FORBIDDEN.value(), 
+//						HttpStatus.FORBIDDEN.name(), "El acceso solo está disponible para los perfiles de revendedora y UM.", "");			
+//			}
 			
 			if(user != null && passwordEncoder.matches(password, user.getPassword())) {
 				String jwt = jwtUtil.generateToken(user.getDni().toString());
