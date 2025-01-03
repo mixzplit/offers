@@ -1,7 +1,10 @@
 package com.tupperware.auth.services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,6 +67,11 @@ public class UserService implements UserDetailsService {
 		//Buscamos segun el numero de documento la/s zona/s 
 		//responsable/s del usuario logeado
 		String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(username);
+		//Creamos una lista de zonas
+		List<String> zonasList = Arrays.stream(zonasResponsables.split(","))
+								.map(String::trim)
+								.filter(zona -> !zona.isEmpty()) // filtramos por si hay algun valor vacio entre comas
+								.collect(Collectors.toList());
 		
 		if(user != null) {
 			Revendedora rev = revRepo.findByContrato(user.getContrato());		
@@ -80,7 +88,7 @@ public class UserService implements UserDetailsService {
 			userDto.setIdPerfil(user.getIdRolWeb());
 			userDto.setNombrePerfil(user.getNombreRol());
 			userDto.setGrupoAplicacion(rev.getGrupoAplicacion());
-			userDto.setNodoResponsables(zonasResponsables);
+			userDto.setNodoResponsables(zonasList);
 			
 			actionLogService.logAction(user.getContrato(), "Perfil", "Consulta perfil Usuario");
 			

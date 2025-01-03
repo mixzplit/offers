@@ -70,6 +70,7 @@ public class AuthService {
 						HttpStatus.OK.name(), "", jwt);
 			}else {
 				actionLogService.logAction(user.getContrato(), "LogIn", "Credenciales Invalidas");
+				logger.error("Contrato: "+user.getContrato()+" no pudo autenticarse");
 				return new AuthResponse(
 						HttpStatus.UNAUTHORIZED.value(),
 						"error",
@@ -79,6 +80,7 @@ public class AuthService {
 			}
 		} else {
 			actionLogService.logAction(dni, "LogIn", "El Nro de documento no existe.");
+			logger.error("El DNI: "+dni+" no existe en la base de datos");
 			return new AuthResponse(
 					HttpStatus.FORBIDDEN.value(),
 					"error",
