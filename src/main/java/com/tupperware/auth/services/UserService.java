@@ -64,16 +64,22 @@ public class UserService implements UserDetailsService {
 		String username = authUtil.getAuthenticatedUserEmail();
 		
 		User user = userRepo.findByDni(Integer.valueOf(username));
-		//Buscamos segun el numero de documento la/s zona/s 
-		//responsable/s del usuario logeado
-		String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(username);
-		//Creamos una lista de zonas
-		List<String> zonasList = Arrays.stream(zonasResponsables.split(","))
-								.map(String::trim)
-								.filter(zona -> !zona.isEmpty()) // filtramos por si hay algun valor vacio entre comas
-								.collect(Collectors.toList());
 		
 		if(user != null) {
+			// Inicializamos la lista de zonas
+			List<String> zonasList = Collections.emptyList();
+			// Validamos que solo los perfiles 2 y 3 traigan sus responsables
+			if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+				//Buscamos segun el numero de documento la/s zona/s 
+				//responsable/s del usuario logeado
+				String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(username);
+				//Creamos una lista de zonas
+				zonasList = Arrays.stream(zonasResponsables.split(","))
+									.map(String::trim)
+									.filter(zona -> !zona.isEmpty()) // filtramos por si hay algun valor vacio entre comas
+									.collect(Collectors.toList());
+			}
+		
 			Revendedora rev = revRepo.findByContrato(user.getContrato());		
 		
 			UserDTO userDto = new UserDTO();

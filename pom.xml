@@ -135,7 +135,7 @@
 		<dependency>
 		    <groupId>com.ibm.informix</groupId>
 		    <artifactId>jdbc</artifactId>
-		    <version>15.0.0.0</version>
+		    <version>4.50.10.1</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects -->
 		<dependency>

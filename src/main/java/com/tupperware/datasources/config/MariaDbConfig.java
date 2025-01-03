@@ -61,7 +61,7 @@ public class MariaDbConfig {
                     "com.tupperware.wao.entity"
                 )
                 .persistenceUnit("mariaDbPU")
-                .properties(Map.of("hibernate.dialect","org.hibernate.dialect.MariaDBDialect"))
+                //.properties(Map.of("hibernate.dialect","org.hibernate.dialect.MariaDBDialect"))
                 .build();
     }
 
@@ -71,10 +71,5 @@ public class MariaDbConfig {
             @Qualifier("mariaDbEntityManagerFactory") LocalContainerEntityManagerFactoryBean mariaDbEntityManagerFactory) {
         return new JpaTransactionManager(mariaDbEntityManagerFactory.getObject());
     }
-    
-//    @Bean(name = "mariaDbTransactionManager")
-//    PlatformTransactionManager mariaDbTransactionManager(@Qualifier("mariaDbEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
-//        return new JpaTransactionManager(entityManagerFactory);
-//    }
-    
+       
 }
