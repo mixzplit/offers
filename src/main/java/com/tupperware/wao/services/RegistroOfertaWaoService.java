@@ -1,8 +1,10 @@
 package com.tupperware.wao.services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tupperware.auth.entity.GrupoAplicacion;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
 import com.tupperware.auth.repository.mariadb.RevendedoraRepository;
 import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
@@ -41,6 +44,8 @@ public class RegistroOfertaWaoService {
 	@Autowired
 	RevendedoraRepository revRepo;
 	@Autowired
+	ZonasResponsablesRepository zonaRespRepo;
+	@Autowired
 	UserActionLogService actionLogService;
 	@Autowired
 	AutenticacionUtil authUtil;
@@ -58,8 +63,7 @@ public class RegistroOfertaWaoService {
 				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(),
 	                    "error", "El usuario no pertenece a tu grupo", 
 	                    LocalDateTime.now(), null);
-			}
-			
+			}			
 		}
 		
 		if(userLogueado.getIdRolWeb() == 1 && !contrato.equals(userLogueado.getContrato())) {
@@ -68,6 +72,18 @@ public class RegistroOfertaWaoService {
 	                "error", "No puedes registrar ofertas para otro usuario", 
 	                LocalDateTime.now(), null);
 		}
+		
+		//Validar GZ
+		if(userLogueado.getIdRolWeb() == 2 && !contrato.equals(userLogueado.getContrato())) {
+			//if()
+			//validar si pertenece a la zona
+			if(!esResponsableGZ(username, userLogueado.getContrato(), contrato)) {
+				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
+		                "error", "El contrato no pertenece a tu zona!", 
+		                LocalDateTime.now(), null);	
+			}
+		}
+		
 		
 		return persistirRegistroOferta(userLogueado.getContrato(), contrato, idOferta, cantidad);
 		
@@ -131,6 +147,28 @@ public class RegistroOfertaWaoService {
 	 */
 	private boolean esResponsableUM(Integer contratoUM, Integer contratoUsuario) {
 	    return revRepo.existsByPatrocinanteAndContrato(contratoUM, contratoUsuario);
+	}
+	
+	/**
+	 * 
+	 * @param username (DNI Usuario Logeado)
+	 * @param contratoGZ (Contrato GZ)
+	 * @param contratoUsuario (Contrato a cargar la oferta)
+	 * @return
+	 */
+	private boolean esResponsableGZ(String username, Integer contratoGZ, Integer contratoUsuario) {
+		String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(username);
+		
+		List<String> zonasList = Arrays.stream(zonasResponsables.split(","))
+				.map(String::trim)
+				.filter(zona -> !zona.isEmpty()) // filtramos por si hay algun valor vacio entre comas
+				.collect(Collectors.toList());
+		
+		boolean perteneceZona = zonasList.stream()
+				.anyMatch(zona -> zona.equals(revRepo.findByContrato(contratoUsuario).getZona()));
+		return perteneceZona;
+		
+		
 	}
 	
 	private ApiResponse<?> persistirRegistroOferta(Integer contratoLogeado, Integer contrato, Integer idOferta, Integer cantidad){
