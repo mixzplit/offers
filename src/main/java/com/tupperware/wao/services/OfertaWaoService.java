@@ -1,6 +1,7 @@
 package com.tupperware.wao.services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.tupperware.auth.entity.GrupoAplicacion;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
 import com.tupperware.auth.repository.mariadb.RevendedoraRepository;
 import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
@@ -38,6 +40,8 @@ public class OfertaWaoService {
 	AutenticacionUtil authUtil;
 	@Autowired
 	UserActionLogService actionLogService;
+	@Autowired
+	ZonasResponsablesRepository zonasResponsables;
 	
 	public ApiResponse<List<OfertaWaoDTO>> obtenerOfertas() {
 		try {
@@ -104,6 +108,24 @@ public class OfertaWaoService {
 	
 			List<OfertaWao> ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
 			
+			// Si el perfil es GZ o GD
+	        if (user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+	            String zonasResponsablesGzGd = zonasResponsables.obtenerNodoResponsable(username);
+
+	            // Crear lista de zonas responsables
+	            List<String> zonasOfeGzGd = Arrays.stream(zonasResponsablesGzGd.split(","))
+	                    .map(String::trim)
+	                    .filter(zona -> !zona.isEmpty()) // Filtrar valores vacíos
+	                    .collect(Collectors.toList());
+
+	            if (zonasOfeGzGd != null && !zonasOfeGzGd.isEmpty()) {
+	                // Buscar ofertas activas para las zonas responsables
+	                ofertasActivas = oferta.findOfertasGzGd(fechaActual, zonasOfeGzGd);
+	            } else {
+	                // Si no hay zonas responsables, buscar por la zona del usuario
+	                ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
+	            }
+	        }
 			if(!ofertasActivas.isEmpty()) {
 				List<OfertaWaoDTO> ofertasActivasDTO;
 				

@@ -37,6 +37,13 @@ public interface OfertaWaoRepository extends JpaRepository<OfertaWao, Integer> {
 			@Param("fechaActual") LocalDateTime fechaActual,
 			@Param("zonaUsuario") String zonaUsuario);
 	
+	@Query("SELECT o FROM OfertaWao o " +
+		       "WHERE :fechaActual BETWEEN o.fechaInicio AND o.fechaFin " +
+		       "AND (o.zonasAsignadas IN :zonasUsuarios OR o.zonasAsignadas = '')")
+		List<OfertaWao> findOfertasGzGd(
+		        @Param("fechaActual") LocalDateTime fechaActual,
+		        @Param("zonasUsuarios") List<String> zonasUsuarios);
+
 	
 	/**
 	 * Cantidad de solicitudes segun perfil,
