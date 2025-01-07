@@ -23,4 +23,15 @@ public class UserActionLogService {
 		
 		userAction.save(log);
 	}
+	
+	public void logAction(Integer contratoLogeado, Integer contrato, String action, String details) {
+		UserActionLog log = new UserActionLog();
+		log.setContratoLogeado(contratoLogeado);
+		log.setContrato(contrato);
+		log.setAction(action);
+		log.setDetails(details);
+		log.setCreatedAt(LocalDateTime.now());
+		
+		userAction.save(log);
+	}
 }
