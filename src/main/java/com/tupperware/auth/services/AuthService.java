@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.tupperware.auth.entity.User;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
 import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.auth.utils.JwtUtil;
 import com.tupperware.bitacora.services.UserActionLogService;
@@ -25,6 +26,8 @@ public class AuthService {
 	UserActionLogService actionLogService;
 	@Autowired
 	PasswordEncoder passwordEncoder; //bean en SecurityConfig
+	@Autowired
+	ZonasResponsablesRepository zonaRespRepo;
 	
 	public AuthResponse authenticate(String emailDni, String password) {
 		if(ValidationUtil.isEmail(emailDni)) {
@@ -52,13 +55,19 @@ public class AuthService {
 	 */
 	private AuthResponse authenticateDni(Integer dni, String password) {
 		User user = userRepo.findByDni(dni);
+		String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(dni.toString());
+
 		
 		if(user != null) {
-//			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
-//				return new AuthResponse(
-//						HttpStatus.FORBIDDEN.value(), 
-//						HttpStatus.FORBIDDEN.name(), "El acceso solo está disponible para los perfiles de revendedora y UM.", "");			
-//			}
+			
+			if((user.getIdRolWeb()== 2 || user.getIdRolWeb() == 3) && zonasResponsables == null) {
+				return new AuthResponse(
+						HttpStatus.UNAUTHORIZED.value(),
+						"error",
+						"El perfil del usuario no tiene zonas asignadas",
+						null
+						);
+			}
 			
 			if(user != null && passwordEncoder.matches(password, user.getPassword())) {
 				String jwt = jwtUtil.generateToken(user.getDni().toString());
