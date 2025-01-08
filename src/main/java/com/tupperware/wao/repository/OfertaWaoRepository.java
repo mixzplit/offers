@@ -58,11 +58,14 @@ public interface OfertaWaoRepository extends JpaRepository<OfertaWao, Integer> {
 		       "JOIN Revendedora rev ON r.contrato = rev.contrato " +
 		       "WHERE r.idOferta = :idOferta " +
 		       "AND ((:idPerfil = 1 AND rev.contrato = :contratoUsuario) " +
-		       "OR (:idPerfil = 4 AND (rev.contrato = :contratoUsuario OR rev.patrocinante = :contratoUsuario)))")
+		       "OR (:idPerfil = 4 AND (rev.contrato = :contratoUsuario OR rev.patrocinante = :contratoUsuario)) "+
+		       "OR (:idPerfil = 2 AND rev.zona IN (:zonasResponsables)) "+ 
+		       "OR (:idPerfil = 3 AND rev.zona IN (:zonasResponsables)))")
 	Long countSolicitudesPorPerfilYOferta(
 		        @Param("idPerfil") Integer idPerfil,
 		        @Param("contratoUsuario") Integer contratoUsuario,
-		        @Param("idOferta") Integer idOferta);
+		        @Param("idOferta") Integer idOferta,
+		        @Param("zonasResponsables") List<String> zonasResponsables);
 
 
 	/**
@@ -79,10 +82,13 @@ public interface OfertaWaoRepository extends JpaRepository<OfertaWao, Integer> {
 		       "JOIN Revendedora rev ON r.contrato = rev.contrato " +
 		       "WHERE r.idOferta = :idOferta " +
 		       "AND ((:idPerfil = 1 AND rev.contrato = :contratoUsuario) " +
-		       "OR (:idPerfil = 4 AND (rev.contrato = :contratoUsuario OR rev.patrocinante = :contratoUsuario)))")
+		       "OR (:idPerfil = 4 AND (rev.contrato = :contratoUsuario OR rev.patrocinante = :contratoUsuario)) "+
+		       "OR (:idPerfil = 2 AND rev.zona IN (:zonasResponsables)) "+
+		       "OR (:idPerfil = 3 AND rev.zona IN (:zonasResponsables)))")
 	List<Object[]> detalleSolicitudesPorPerfilYOferta(
 		        @Param("idPerfil") Integer idPerfil,
 		        @Param("contratoUsuario") Integer contratoUsuario,
-		        @Param("idOferta") Integer idOferta);
+		        @Param("idOferta") Integer idOferta,
+		        @Param("zonasResponsables") List<String> zonasResponsables);
 	
 }

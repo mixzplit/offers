@@ -104,7 +104,7 @@ public class OfertaWaoService {
 	        User user = userRepo.findByDni(Integer.valueOf(username));
 	        Revendedora rev = revRepo.findByContrato(user.getContrato());
 	        String zonaUsuario = "%" + rev.getZona() + "%"; // LIKE en el Repository
-	        List<OfertaWao> ofertasActivas;
+	        List<OfertaWao> ofertasActivas = Collections.emptyList();
 
 	        // Determinar lógica según el rol
 	        if (user.getIdRolWeb() == 1) {
@@ -118,20 +118,36 @@ public class OfertaWaoService {
                             .filter(oferta -> gruposUsuario.contains(oferta.getIdGrupoAplicacion()))
                             .collect(Collectors.toList());
                 }
-	        }if(user.getIdRolWeb() == 4){
-	            ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
 	        }else {
-	        	String zonasResponsablesGzGd = zonasResponsables.obtenerNodoResponsable(username);
-                List<String> zonasResponsables = Arrays.stream(zonasResponsablesGzGd.split(","))
-                        .map(String::trim)
-                        .filter(zona -> !zona.isEmpty())
-                        .collect(Collectors.toList());
+		        if(user.getIdRolWeb() == 4){
+		            ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
+		        }else {
+		        	if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+		        		// Si el perfil es GZ o GD, entra aqui y busco las ofertas activas
+		        		// sin importar a quien va dirigida
+		        		List<OfertaWao> ofertas = oferta.findByFechaInicioBeforeAndFechaFinAfter(fechaActual, fechaActual);
+		        		
+		        		ofertasActivas = ofertas.stream()
+		        				.filter(oferta -> {
+		        					//Todo este proceso no contenpla cuando la oferta no tiene
+		        					//zonas asignadas, hay que mejorar esta parte que se agrega
+		        					String zonas = oferta.getZonasAsignadas();
+		        					if(zonas == null || zonas.trim().isEmpty()) {
+		        						return true;
+		        					}
+		        					
+		        					
+		        					// Convertimos zonasAsignadas de la oferta a una lista
+		        		            List<String> zonasAsignadas = Arrays.stream(zonas.split(";"))
+		        		                    .map(String::trim)
+		        		                    .filter(zona -> !zona.isEmpty())
+		        		                    .collect(Collectors.toList());
+		        		            // Verificamos si hay coincidencia con zonasResponsables
+		        		            return zonasResponsables(username).stream().anyMatch(zonasAsignadas::contains);
+		        				}).collect(Collectors.toList());
 
-                if (!zonasResponsables.isEmpty()) {
-                    ofertasActivas = oferta.findOfertasGzGd(fechaActual, zonasResponsables);
-                } else {
-                    ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
-                }
+		        	}
+		        }
 	        }
 	        // Convertir las ofertas activas a DTO
 	        List<OfertaWaoDTO> ofertasActivasDTO = ofertasActivas.stream()
@@ -162,7 +178,13 @@ public class OfertaWaoService {
 		User user = userRepo.findByDni(Integer.valueOf(username));
 		//Revendedora rev = revRepo.findByContrato(user.getContrato());
 		
-		List<Object[]> result = oferta.detalleSolicitudesPorPerfilYOferta(user.getIdRolWeb(), user.getContrato(), idOferta);
+		List<String> zonasResponsables = Collections.emptyList();
+		if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+			zonasResponsables = zonasResponsables(username);
+		}
+		
+		
+		List<Object[]> result = oferta.detalleSolicitudesPorPerfilYOferta(user.getIdRolWeb(), user.getContrato(), idOferta, zonasResponsables);
 		
 		List<DetalleSolicitudDTO> detalleSolicitud = result.stream()
 							.map(detalle -> new DetalleSolicitudDTO((Integer)detalle[0], (Integer) detalle[1],
@@ -182,10 +204,16 @@ public class OfertaWaoService {
 	 */
 	private OfertaWaoDTO convertirOfertaADTO(OfertaWao ofertaWao, User user, Revendedora rev) {
 		// Calcula el conteo según el perfil y la oferta
+		List<String> zonasResponsables = Collections.emptyList();
+		if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+			zonasResponsables = zonasResponsables(user.getDni().toString());
+		}
+		
 	    Long cantidadSolicitudes = oferta.countSolicitudesPorPerfilYOferta(
 	            user.getIdRolWeb(),
 	            user.getContrato(),
-	            ofertaWao.getId()
+	            ofertaWao.getId(),
+	            zonasResponsables
 	    );
 	    
 	    return new OfertaWaoDTO(
@@ -204,6 +232,16 @@ public class OfertaWaoService {
 	        ofertaWao.getZonasAsignadas(),
 	        cantidadSolicitudes
 	    );
+	}
+	
+	private List<String> zonasResponsables(String username){
+		String zonasResponsablesGzGd = zonasResponsables.obtenerNodoResponsable(username);
+		List<String> zonasResponsables = Arrays.stream(zonasResponsablesGzGd.split(","))
+				.map(String::trim)
+				.filter(zona -> !zona.isEmpty())
+				.collect(Collectors.toList());
+		
+		return zonasResponsables;
 	}
 		
 }
