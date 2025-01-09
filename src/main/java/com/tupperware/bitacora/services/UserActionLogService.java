@@ -24,10 +24,11 @@ public class UserActionLogService {
 		userAction.save(log);
 	}
 	
-	public void logAction(Integer contratoLogeado, Integer contrato, String action, String details) {
+	public void logAction(Integer contratoLogeado, Integer contrato, String action, String details, Integer idRolweb) {
 		UserActionLog log = new UserActionLog();
 		log.setContratoLogeado(contratoLogeado);
 		log.setContrato(contrato);
+		log.setIdRolWeb(idRolweb);
 		log.setAction(action);
 		log.setDetails(details);
 		log.setCreatedAt(LocalDateTime.now());

@@ -95,7 +95,7 @@ public class RegistroOfertaWaoService {
 			}
 			
 			
-			return persistirRegistroOferta(userLogueado.getContrato(), contrato, idOferta, cantidad);
+			return persistirRegistroOferta(userLogueado.getContrato(), userLogueado.getIdRolWeb(), contrato, idOferta, cantidad);
 		}else {
 			return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
 					"error", 
@@ -183,8 +183,7 @@ public class RegistroOfertaWaoService {
 		
 		boolean perteneceZona = zonasList.stream()
 				.anyMatch(zona -> zona.equals(revRepo.findByContrato(contratoUsuario).getZona()));
-		return perteneceZona;
-		
+		return perteneceZona;	
 		
 	}
 	
@@ -197,7 +196,7 @@ public class RegistroOfertaWaoService {
 	 * @param cantidad
 	 * @return
 	 */
-	private ApiResponse<?> persistirRegistroOferta(Integer contratoLogeado, Integer contrato, Integer idOferta, Integer cantidad){
+	private ApiResponse<?> persistirRegistroOferta(Integer contratoLogeado, Integer idRolWeb, Integer contrato, Integer idOferta, Integer cantidad){
 		
 		// Verificamos que la oferta este activa
 		Optional<OfertaWao> oferta = ofertaWao.findValidarOfertaActiva(LocalDateTime.now(), idOferta);
@@ -214,7 +213,6 @@ public class RegistroOfertaWaoService {
 	                "error", "Oferta ya registrada.", 
 	                LocalDateTime.now(), null);
 		}
-		
 		
 		OfertaWao ofertaE = oferta.get(); //Entidad
 		
@@ -243,6 +241,26 @@ public class RegistroOfertaWaoService {
 			// buscar los ID grupo aplicacion del contrato
 			Revendedora rev = revRepo.findByContrato(contrato);
 			
+			//Validamos si el contrato a cargar la oferta pertenece a alguna
+			//de las zonas asignadas en la ofertas cuando es cargado por el rol
+			//3 (GD)
+			//if(idRolWeb == 3) {
+				
+//				List<String> zonasOfertas = Arrays.stream(ofertaE.getZonasAsignadas().split(";"))
+//							.map(String::trim)
+//							.filter(zona -> !zona.equals(rev.getZona()))
+//							.collect(Collectors.toList());
+				
+//				boolean aplicaOferta = Arrays.stream(ofertaE.getZonasAsignadas().split(";"))
+//						.anyMatch(zona -> !zona.equals(rev.getZona()));
+//				if(!aplicaOferta) {
+//					
+//				}
+
+				
+			//}
+			
+			
 			//
 			if(rev.getZona().equals("777")) {
 				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
@@ -268,7 +286,11 @@ public class RegistroOfertaWaoService {
 			boolean perteneceGrupo = gruposUsuario.stream()
 						.anyMatch(id -> id.equals(ofertaE.getIdGrupoAplicacion()));
 			
-			if(!perteneceGrupo) {
+			
+			boolean aplicaOferta = Arrays.stream(ofertaE.getZonasAsignadas().split(";"))
+					.anyMatch(zona -> zona.equals(rev.getZona()));
+			
+			if(!perteneceGrupo || !aplicaOferta) {
 				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
 						"error", 
 						"La oferta no esta disponible para este numero de cliente", 
@@ -293,7 +315,7 @@ public class RegistroOfertaWaoService {
 			// guardamos la oferta al usuario
 			registroOferta.save(registro);
 			
-			actionLogService.logAction(contratoLogeado, contrato, "RegistroOferta", "Se registro la oferta: "+ idOferta);
+			actionLogService.logAction(contratoLogeado, contrato, "RegistroOferta", "Se registro la oferta: "+ idOferta, idRolWeb);
 			
 			return new ApiResponse<>(HttpStatus.CREATED.value(), 
 					"Registro exitoso", "", 
