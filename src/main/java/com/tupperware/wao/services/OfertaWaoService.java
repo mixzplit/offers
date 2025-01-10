@@ -134,8 +134,7 @@ public class OfertaWaoService {
 		        					String zonas = oferta.getZonasAsignadas();
 		        					if(zonas == null || zonas.trim().isEmpty()) {
 		        						return true;
-		        					}
-		        					
+		        					}		        					
 		        					
 		        					// Convertimos zonasAsignadas de la oferta a una lista
 		        		            List<String> zonasAsignadas = Arrays.stream(zonas.split(";"))
