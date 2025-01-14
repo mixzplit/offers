@@ -1,4 +1,4 @@
-package com.tupperware.auth.repository;
+package com.tupperware.auth.repository.mariadb;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

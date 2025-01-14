@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.tupperware.auth.entity.User;
-import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
+import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.auth.utils.JwtUtil;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.AuthResponse;
@@ -25,6 +26,8 @@ public class AuthService {
 	UserActionLogService actionLogService;
 	@Autowired
 	PasswordEncoder passwordEncoder; //bean en SecurityConfig
+	@Autowired
+	ZonasResponsablesRepository zonaRespRepo;
 	
 	public AuthResponse authenticate(String emailDni, String password) {
 		if(ValidationUtil.isEmail(emailDni)) {
@@ -52,12 +55,18 @@ public class AuthService {
 	 */
 	private AuthResponse authenticateDni(Integer dni, String password) {
 		User user = userRepo.findByDni(dni);
+		String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(dni.toString());
+
 		
 		if(user != null) {
-			if(user.getIdRolWeb()==3 || user.getIdRolWeb()==2) {
+			
+			if((user.getIdRolWeb()== 2 || user.getIdRolWeb() == 3) && zonasResponsables == null) {
 				return new AuthResponse(
-						HttpStatus.FORBIDDEN.value(), 
-						HttpStatus.FORBIDDEN.name(), "El acceso solo está disponible para los perfiles de revendedora y UM.", "");			
+						HttpStatus.UNAUTHORIZED.value(),
+						"error",
+						"El perfil del usuario no tiene zonas asignadas",
+						null
+						);
 			}
 			
 			if(user != null && passwordEncoder.matches(password, user.getPassword())) {
@@ -70,6 +79,7 @@ public class AuthService {
 						HttpStatus.OK.name(), "", jwt);
 			}else {
 				actionLogService.logAction(user.getContrato(), "LogIn", "Credenciales Invalidas");
+				logger.error("Contrato: "+user.getContrato()+" no pudo autenticarse");
 				return new AuthResponse(
 						HttpStatus.UNAUTHORIZED.value(),
 						"error",
@@ -79,6 +89,7 @@ public class AuthService {
 			}
 		} else {
 			actionLogService.logAction(dni, "LogIn", "El Nro de documento no existe.");
+			logger.error("El DNI: "+dni+" no existe en la base de datos");
 			return new AuthResponse(
 					HttpStatus.FORBIDDEN.value(),
 					"error",

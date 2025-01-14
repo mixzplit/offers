@@ -1,6 +1,7 @@
 package com.tupperware.wao.services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,8 +15,9 @@ import org.springframework.stereotype.Service;
 import com.tupperware.auth.entity.GrupoAplicacion;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
-import com.tupperware.auth.repository.RevendedoraRepository;
-import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
+import com.tupperware.auth.repository.mariadb.RevendedoraRepository;
+import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
 import com.tupperware.utils.AutenticacionUtil;
@@ -38,6 +40,8 @@ public class OfertaWaoService {
 	AutenticacionUtil authUtil;
 	@Autowired
 	UserActionLogService actionLogService;
+	@Autowired
+	ZonasResponsablesRepository zonasResponsables;
 	
 	public ApiResponse<List<OfertaWaoDTO>> obtenerOfertas() {
 		try {
@@ -96,47 +100,67 @@ public class OfertaWaoService {
 	 */
 	public ApiResponse<List<OfertaWaoDTO>> obtenerOfertasActivas(LocalDateTime fechaActual){
 		try {
-			String username = authUtil.getAuthenticatedUserEmail();
-			
-			User user = userRepo.findByDni(Integer.valueOf(username));
-			Revendedora rev = revRepo.findByContrato(user.getContrato());
-			String zonaUsuario = "%"+rev.getZona()+"%"; // LIKE en el Repository		
-	
-			List<OfertaWao> ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
-			
-			if(!ofertasActivas.isEmpty()) {
-				List<OfertaWaoDTO> ofertasActivasDTO;
-				
-				//GrupoAplicacion de la rev
-				// Si es revendedora filtrar los grupos de aplicacion
-				if(user.getIdRolWeb() == 1) {
-					List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
-							.map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
-							.toList(); // Convertir a una lista
-							
-					// Convertir entidad a DTO
-					ofertasActivasDTO = ofertasActivas.stream()
-							.filter(oferta -> gruposUsuario.contains(oferta.getIdGrupoAplicacion()))
-							.map(oferta -> convertirOfertaADTO(oferta, user, rev)).collect(Collectors.toList());
-				
-				}else {
-					// Convertir entidad a DTO
-					ofertasActivasDTO = ofertasActivas.stream()
-							.map(oferta -> convertirOfertaADTO(oferta, user, rev)).collect(Collectors.toList());
-				}
-				
-				actionLogService.logAction(user.getContrato(), "Ofertas", "Consulta de ofertas Activas");
-				
-				return new ApiResponse<>(HttpStatus.OK.value(), 
-						"success", 
-						"fetched", 
-						LocalDateTime.now(), ofertasActivasDTO);
-			}else {
-				return new ApiResponse<>(HttpStatus.OK.value(), 
-						HttpStatus.OK.name(), 
-						"No hay ofertas activas", 
-						LocalDateTime.now(), Collections.emptyList()); //devolvemos una coleccion vacia para que haya cuerpo en el response
-			}
+	        String username = authUtil.getAuthenticatedUserEmail();
+	        User user = userRepo.findByDni(Integer.valueOf(username));
+	        Revendedora rev = revRepo.findByContrato(user.getContrato());
+	        String zonaUsuario = "%" + rev.getZona() + "%"; // LIKE en el Repository
+	        List<OfertaWao> ofertasActivas = Collections.emptyList();
+
+	        // Determinar lógica según el rol
+	        if (user.getIdRolWeb() == 1) {
+	        	ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
+                if (!ofertasActivas.isEmpty()) {
+                    List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
+                            .map(GrupoAplicacion::getIdGrupoAplicacion)
+                            .collect(Collectors.toList());
+
+                    ofertasActivas = ofertasActivas.stream()
+                            .filter(oferta -> gruposUsuario.contains(oferta.getIdGrupoAplicacion()))
+                            .collect(Collectors.toList());
+                }
+	        }else {
+		        if(user.getIdRolWeb() == 4){
+		            ofertasActivas = oferta.findOfertasActivasPorZonaAndGlobal(fechaActual, zonaUsuario);
+		        }else {
+		        	if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+		        		// Si el perfil es GZ o GD, entra aqui y busco las ofertas activas
+		        		// sin importar a quien va dirigida
+		        		List<OfertaWao> ofertas = oferta.findByFechaInicioBeforeAndFechaFinAfter(fechaActual, fechaActual);
+		        		
+		        		ofertasActivas = ofertas.stream()
+		        				.filter(oferta -> {
+		        					//Todo este proceso no contenpla cuando la oferta no tiene
+		        					//zonas asignadas, hay que mejorar esta parte que se agrega
+		        					String zonas = oferta.getZonasAsignadas();
+		        					if(zonas == null || zonas.trim().isEmpty()) {
+		        						return true;
+		        					}		        					
+		        					
+		        					// Convertimos zonasAsignadas de la oferta a una lista
+		        		            List<String> zonasAsignadas = Arrays.stream(zonas.split(";"))
+		        		                    .map(String::trim)
+		        		                    .filter(zona -> !zona.isEmpty())
+		        		                    .collect(Collectors.toList());
+		        		            // Verificamos si hay coincidencia con zonasResponsables
+		        		            return zonasResponsables(username).stream().anyMatch(zonasAsignadas::contains);
+		        				}).collect(Collectors.toList());
+
+		        	}
+		        }
+	        }
+	        // Convertir las ofertas activas a DTO
+	        List<OfertaWaoDTO> ofertasActivasDTO = ofertasActivas.stream()
+	                .map(oferta -> convertirOfertaADTO(oferta, user, rev))
+	                .collect(Collectors.toList());
+
+	        actionLogService.logAction(user.getContrato(), "Ofertas", "Consulta de ofertas activas");
+
+	        return new ApiResponse<>(HttpStatus.OK.value(),
+	                "success",
+	                "fetched",
+	                LocalDateTime.now(),
+	                ofertasActivasDTO);
+
 		}catch (Exception e) {
 			logger.error("Error al obtener las ofertas activas", e);
 			return new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
@@ -153,7 +177,13 @@ public class OfertaWaoService {
 		User user = userRepo.findByDni(Integer.valueOf(username));
 		//Revendedora rev = revRepo.findByContrato(user.getContrato());
 		
-		List<Object[]> result = oferta.detalleSolicitudesPorPerfilYOferta(user.getIdRolWeb(), user.getContrato(), idOferta);
+		List<String> zonasResponsables = Collections.emptyList();
+		if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+			zonasResponsables = zonasResponsables(username);
+		}
+		
+		
+		List<Object[]> result = oferta.detalleSolicitudesPorPerfilYOferta(user.getIdRolWeb(), user.getContrato(), idOferta, zonasResponsables);
 		
 		List<DetalleSolicitudDTO> detalleSolicitud = result.stream()
 							.map(detalle -> new DetalleSolicitudDTO((Integer)detalle[0], (Integer) detalle[1],
@@ -173,10 +203,16 @@ public class OfertaWaoService {
 	 */
 	private OfertaWaoDTO convertirOfertaADTO(OfertaWao ofertaWao, User user, Revendedora rev) {
 		// Calcula el conteo según el perfil y la oferta
+		List<String> zonasResponsables = Collections.emptyList();
+		if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+			zonasResponsables = zonasResponsables(user.getDni().toString());
+		}
+		
 	    Long cantidadSolicitudes = oferta.countSolicitudesPorPerfilYOferta(
 	            user.getIdRolWeb(),
 	            user.getContrato(),
-	            ofertaWao.getId()
+	            ofertaWao.getId(),
+	            zonasResponsables
 	    );
 	    
 	    return new OfertaWaoDTO(
@@ -195,6 +231,16 @@ public class OfertaWaoService {
 	        ofertaWao.getZonasAsignadas(),
 	        cantidadSolicitudes
 	    );
+	}
+	
+	private List<String> zonasResponsables(String username){
+		String zonasResponsablesGzGd = zonasResponsables.obtenerNodoResponsable(username);
+		List<String> zonasResponsables = Arrays.stream(zonasResponsablesGzGd.split(","))
+				.map(String::trim)
+				.filter(zona -> !zona.isEmpty())
+				.collect(Collectors.toList());
+		
+		return zonasResponsables;
 	}
 		
 }
