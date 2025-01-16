@@ -6,6 +6,8 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +17,8 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @EnableTransactionManagement
@@ -34,15 +38,27 @@ public class InformixDbConfig {
 	private String password;
 	@Value("${spring.datasource.informix.driver-class-name}")
 	private String driverClass;
+	@Value("${spring.datasource.informix.hikari.maximum-pool-size}")
+	private Integer maxPoolSize;
 	
 	@Bean(name = "informixDbDataSource")
+	@ConfigurationProperties(prefix = "spring.datasource.informix")
 	DataSource informixDbDataSource() {
-		return DataSourceBuilder.create()
-				.url(url)
-				.username(username)
-				.password(password)
-				.driverClassName(driverClass)
-				.build();
+//		return DataSourceBuilder.create()
+////				.url(url)
+////				.username(username)
+////				.password(password)
+////				.driverClassName(driverClass)
+//				.type(HikariDataSource.class)
+//				.build();
+		HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setMaximumPoolSize(maxPoolSize); // Set Hikari max pool size
+
+        return dataSource;
 	}
 	
 	@Bean(name = "informixEntityManagerFactory")
