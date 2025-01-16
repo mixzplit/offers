@@ -1,8 +1,10 @@
 package com.tupperware.wao.services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tupperware.auth.entity.GrupoAplicacion;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
-import com.tupperware.auth.repository.RevendedoraRepository;
-import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
+import com.tupperware.auth.repository.mariadb.RevendedoraRepository;
+import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
 import com.tupperware.utils.AutenticacionUtil;
@@ -41,6 +44,8 @@ public class RegistroOfertaWaoService {
 	@Autowired
 	RevendedoraRepository revRepo;
 	@Autowired
+	ZonasResponsablesRepository zonaRespRepo;
+	@Autowired
 	UserActionLogService actionLogService;
 	@Autowired
 	AutenticacionUtil authUtil;
@@ -50,26 +55,45 @@ public class RegistroOfertaWaoService {
 		String username = authUtil.getAuthenticatedUserEmail();
 		User userLogueado = userRepo.findByDni(Integer.valueOf(username));
 		
-		if(userLogueado.getIdRolWeb() == 4 && !userLogueado.getContrato().equals(contrato) ) {
-			// SI ENTRA AQUI ES UM Y PUEDE CARGAR
-			// OFERTAS A OTROS USUARIOS DE SU GRUPO
-			if(!esResponsableUM(userLogueado.getContrato(), contrato)) {
-				actionLogService.logAction(userLogueado.getContrato(), "RegistroOferta", "Intento de registro: contrato "+contrato+" no pertenece al grupo de: "+ userLogueado.getContrato());
-				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(),
-	                    "error", "El usuario no pertenece a tu grupo", 
-	                    LocalDateTime.now(), null);
+		if(!revRepo.findByContrato(contrato).getZona().equals("777")) {
+			if(userLogueado.getIdRolWeb() == 4 && !userLogueado.getContrato().equals(contrato) ) {
+				// SI ENTRA AQUI ES UM Y PUEDE CARGAR
+				// OFERTAS A OTROS USUARIOS DE SU GRUPO
+				if(!esResponsableUM(userLogueado.getContrato(), contrato)) {
+					actionLogService.logAction(userLogueado.getContrato(), "RegistroOferta", "Intento de registro: contrato "+contrato+" no pertenece al grupo de: "+ userLogueado.getContrato());
+					return new ApiResponse<>(HttpStatus.FORBIDDEN.value(),
+		                    "error", "El usuario no pertenece a tu grupo", 
+		                    LocalDateTime.now(), null);
+				}			
 			}
 			
-		}
-		
-		if(userLogueado.getIdRolWeb() == 1 && !contrato.equals(userLogueado.getContrato())) {
-			actionLogService.logAction(userLogueado.getContrato(), "RegistroOferta", "Intento de registro: contrato "+contrato+" no pertenece al usuario");
+			if(userLogueado.getIdRolWeb() == 1 && !contrato.equals(userLogueado.getContrato())) {
+				actionLogService.logAction(userLogueado.getContrato(), "RegistroOferta", "Intento de registro: contrato "+contrato+" no pertenece al usuario");
+				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
+		                "error", "No puedes registrar ofertas para otro usuario", 
+		                LocalDateTime.now(), null);
+			}
+			
+			//Validar GZ
+			if((userLogueado.getIdRolWeb() == 2 || userLogueado.getIdRolWeb() == 3 ) && !contrato.equals(userLogueado.getContrato())) {
+				//validar si pertenece a la zona
+				if(!esResponsableGZGD(username, userLogueado.getContrato(), contrato)) {
+					String rol = userLogueado.getIdRolWeb() == 2 ? "zona" : "division";
+					return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
+			                "error", "El contrato no pertenece a tu "+rol+"!", 
+			                LocalDateTime.now(), null);	
+				}
+			}
+			
+			
+			return persistirRegistroOferta(userLogueado.getContrato(), userLogueado.getIdRolWeb(), contrato, idOferta, cantidad);
+		}else {
 			return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
-	                "error", "No puedes registrar ofertas para otro usuario", 
-	                LocalDateTime.now(), null);
+					"error", 
+					"El número de cliente ingresado pertenece a la zona 777, no puede registrar ofertas", 
+					LocalDateTime.now(), 
+					null);
 		}
-		
-		return persistirRegistroOferta(userLogueado.getContrato(), contrato, idOferta, cantidad);
 		
 	}
 	
@@ -133,7 +157,37 @@ public class RegistroOfertaWaoService {
 	    return revRepo.existsByPatrocinanteAndContrato(contratoUM, contratoUsuario);
 	}
 	
-	private ApiResponse<?> persistirRegistroOferta(Integer contratoLogeado, Integer contrato, Integer idOferta, Integer cantidad){
+	/**
+	 * 
+	 * @param username (DNI Usuario Logeado)
+	 * @param contratoGZ (Contrato GZ)
+	 * @param contratoUsuario (Contrato a cargar la oferta)
+	 * @return
+	 */
+	private boolean esResponsableGZGD(String username, Integer contratoGZ, Integer contratoUsuario) {
+		String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(username);
+		
+		List<String> zonasList = Arrays.stream(zonasResponsables.split(","))
+				.map(String::trim)
+				.filter(zona -> !zona.isEmpty()) // filtramos por si hay algun valor vacio entre comas
+				.collect(Collectors.toList());
+		
+		boolean perteneceZona = zonasList.stream()
+				.anyMatch(zona -> zona.equals(revRepo.findByContrato(contratoUsuario).getZona()));
+		return perteneceZona;	
+		
+	}
+	
+	
+	/**
+	 * 
+	 * @param contratoLogeado (contrato del usuario logeado)
+	 * @param contrato (contrato a quien se le registra la oferta)
+	 * @param idOferta
+	 * @param cantidad
+	 * @return
+	 */
+	private ApiResponse<?> persistirRegistroOferta(Integer contratoLogeado, Integer idRolWeb, Integer contrato, Integer idOferta, Integer cantidad){
 		
 		// Verificamos que la oferta este activa
 		Optional<OfertaWao> oferta = ofertaWao.findValidarOfertaActiva(LocalDateTime.now(), idOferta);
@@ -150,7 +204,6 @@ public class RegistroOfertaWaoService {
 	                "error", "Oferta ya registrada.", 
 	                LocalDateTime.now(), null);
 		}
-		
 		
 		OfertaWao ofertaE = oferta.get(); //Entidad
 		
@@ -179,6 +232,32 @@ public class RegistroOfertaWaoService {
 			// buscar los ID grupo aplicacion del contrato
 			Revendedora rev = revRepo.findByContrato(contrato);
 			
+			//Validamos si el contrato a cargar la oferta pertenece a alguna
+			//de las zonas asignadas en la ofertas cuando es cargado por el rol
+			//3 (GD)
+			if(idRolWeb == 3) {
+				if(ofertaE.getZonasAsignadas() != null && !ofertaE.getZonasAsignadas().trim().isEmpty()) {
+					boolean aplicaOferta = Arrays.stream(ofertaE.getZonasAsignadas().split(";"))
+							.anyMatch(zona -> zona.equals(rev.getZona()));
+					if(!aplicaOferta) {
+						return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
+								"error", 
+								"La oferta no esta disponible para este numero de cliente", 
+								LocalDateTime.now(), 
+								null);
+					}
+				}
+			}			
+			
+			//
+			if(rev.getZona().equals("777")) {
+				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
+						"error", 
+						"El número de cliente ingresado pertenece a la zona 777, no puede registrar ofertas", 
+						LocalDateTime.now(), 
+						null);
+			}
+			
 			if(rev.getBloqueada()==1) {
 				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
 						"error", 
@@ -189,12 +268,12 @@ public class RegistroOfertaWaoService {
 			
 			List<Integer> gruposUsuario = rev.getGrupoAplicacion().stream()
 					.map(GrupoAplicacion::getIdGrupoAplicacion) // Extraer los IDs de cada GrupoAplicacion
-					.toList(); // Convertir a una lista
-			
+					.toList(); // Convertir a una lista			
 		
 			boolean perteneceGrupo = gruposUsuario.stream()
 						.anyMatch(id -> id.equals(ofertaE.getIdGrupoAplicacion()));
-			
+			// Si no pertenece al grupo de aplicacion de la oferta no dejar
+			// cargar la oferta
 			if(!perteneceGrupo) {
 				return new ApiResponse<>(HttpStatus.FORBIDDEN.value(), 
 						"error", 
@@ -220,7 +299,7 @@ public class RegistroOfertaWaoService {
 			// guardamos la oferta al usuario
 			registroOferta.save(registro);
 			
-			actionLogService.logAction(contrato, "RegistroOferta", "Se registro la oferta: "+ idOferta);
+			actionLogService.logAction(contratoLogeado, contrato, "RegistroOferta", "Se registro la oferta: "+ idOferta, idRolWeb);
 			
 			return new ApiResponse<>(HttpStatus.CREATED.value(), 
 					"Registro exitoso", "", 

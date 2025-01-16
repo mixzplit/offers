@@ -1,0 +1,62 @@
+{"properties": [
+  {
+    "name": "spring.datasource.mariadb.jdbcUrl",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.mariadb.jdbcUrl'"
+  },
+  {
+    "name": "spring.datasource.mariadb.username",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.mariadb.username'"
+  },
+  {
+    "name": "spring.datasource.mariadb.password",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.mariadb.password'"
+  },
+  {
+    "name": "spring.datasource.mariadb.driver-class-name",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.mariadb.driver-class-name'"
+  },
+  {
+    "name": "spring.datasource.mariadb.hikari.maximum-pool-size",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.mariadb.hikari.maximum-pool-size'"
+  },
+  {
+    "name": "spring.datasource.mariadb.hikari.leak-detection-threshold",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.mariadb.hikari.leak-detection-threshold'"
+  },
+  {
+    "name": "spring.datasource.informix.jdbcUrl",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.informix.jdbcUrl'"
+  },
+  {
+    "name": "spring.datasource.informix.username",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.informix.username'"
+  },
+  {
+    "name": "spring.datasource.informix.password",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.informix.password'"
+  },
+  {
+    "name": "spring.datasource.informix.driver-class-name",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.informix.driver-class-name'"
+  },
+  {
+    "name": "spring.datasource.informix.hikari.maximum-pool-size",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.informix.hikari.maximum-pool-size'"
+  },
+  {
+    "name": "spring.datasource.informix.hikari.leak-detection-threshold",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.informix.hikari.leak-detection-threshold'"
+  }
+]}

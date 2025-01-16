@@ -1,7 +1,10 @@
 package com.tupperware.auth.services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,8 +16,9 @@ import org.springframework.stereotype.Service;
 import com.tupperware.auth.dto.UserDTO;
 import com.tupperware.auth.entity.Revendedora;
 import com.tupperware.auth.entity.User;
-import com.tupperware.auth.repository.RevendedoraRepository;
-import com.tupperware.auth.repository.UserRepository;
+import com.tupperware.auth.repository.informix.ZonasResponsablesRepository;
+import com.tupperware.auth.repository.mariadb.RevendedoraRepository;
+import com.tupperware.auth.repository.mariadb.UserRepository;
 import com.tupperware.bitacora.services.UserActionLogService;
 import com.tupperware.responses.ApiResponse;
 import com.tupperware.utils.AutenticacionUtil;
@@ -27,6 +31,8 @@ public class UserService implements UserDetailsService {
 	UserRepository userRepo;
 	@Autowired
 	RevendedoraRepository revRepo;
+	@Autowired
+	ZonasResponsablesRepository zonaRespRepo;
 	@Autowired
 	UserActionLogService actionLogService;
 	@Autowired
@@ -60,6 +66,20 @@ public class UserService implements UserDetailsService {
 		User user = userRepo.findByDni(Integer.valueOf(username));
 		
 		if(user != null) {
+			// Inicializamos la lista de zonas
+			List<String> zonasList = Collections.emptyList();
+			// Validamos que solo los perfiles 2 y 3 traigan sus responsables
+			if(user.getIdRolWeb() == 2 || user.getIdRolWeb() == 3) {
+				//Buscamos segun el numero de documento la/s zona/s 
+				//responsable/s del usuario logeado
+				String zonasResponsables = zonaRespRepo.obtenerNodoResponsable(username);
+				//Creamos una lista de zonas
+				zonasList = Arrays.stream(zonasResponsables.split(","))
+									.map(String::trim)
+									.filter(zona -> !zona.isEmpty()) // filtramos por si hay algun valor vacio entre comas
+									.collect(Collectors.toList());
+			}
+		
 			Revendedora rev = revRepo.findByContrato(user.getContrato());		
 		
 			UserDTO userDto = new UserDTO();
@@ -74,6 +94,7 @@ public class UserService implements UserDetailsService {
 			userDto.setIdPerfil(user.getIdRolWeb());
 			userDto.setNombrePerfil(user.getNombreRol());
 			userDto.setGrupoAplicacion(rev.getGrupoAplicacion());
+			userDto.setNodoResponsables(zonasList);
 			
 			actionLogService.logAction(user.getContrato(), "Perfil", "Consulta perfil Usuario");
 			
@@ -83,8 +104,8 @@ public class UserService implements UserDetailsService {
 					LocalDateTime.now(), userDto);
 		}else {
 			return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), 
-					"Usuario no encontrato", 
-					"not found", 
+					HttpStatus.NOT_FOUND.name(), 
+					"Usuario no encontrato",  
 					LocalDateTime.now(), null);
 		}
 		
@@ -118,8 +139,8 @@ public class UserService implements UserDetailsService {
 					LocalDateTime.now(), userDto);
 		}else {
 			return new ApiResponse<>(HttpStatus.NOT_FOUND.value(), 
+					HttpStatus.NOT_FOUND.name(), 
 					"Usuario no encontrato", 
-					"not found", 
 					LocalDateTime.now(), null);	
 		}
 	}

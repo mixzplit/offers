@@ -23,7 +23,11 @@ public class UserActionLog {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@Column(name = "contrato_logeado")
+	private Integer contratoLogeado;
 	private Integer contrato;
+	@Column(name = "id_rolweb")
+	private Integer idRolWeb;
 	private String action;
 	private String details;
 	@Column(name = "created_at")
