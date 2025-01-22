@@ -1,3 +1,27 @@
+console.log("app-wao.js cargado");
+
+// Cargar el header dinámicamente
+
+function cargarHeader() {
+    fetch('header.html')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error al cargar el header: ${response.statusText}`);
+            }
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('header-container').innerHTML = html;
+
+            // Aquí puedes inicializar cualquier lógica adicional, por ejemplo:
+            //cargarUsuarioInfo();
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
+
 	//si no hay problemas con la autenticacion, inicializo
 	if(checkAuthentication()){
 		
@@ -5,14 +29,17 @@
 		
 		// Seleccionar el input
 		const nroClienteInput = document.getElementById("nroClienteNbr");
-
-		const handleInput = () => {
-		    const value = nroClienteInput.value;
-		    cargarInfoContratoIngresado(value);
-		};
-
-		// Asignar el evento al input
-		nroClienteInput.addEventListener("change", handleInput);
+		if(nroClienteInput){
+			const handleInput = () => {
+			    const value = nroClienteInput.value;
+			    cargarInfoContratoIngresado(value);
+			};
+	
+			// Asignar el evento al input
+			nroClienteInput.addEventListener("change", handleInput);
+		}else {
+        	console.warn("El elemento nroClienteNbr no se encontró en el DOM.");
+    	}
 	}
 	
 	/**
@@ -93,6 +120,7 @@
 	** Inicializamos los datos de la pantalla
 	**/
 	function inicializarPantalla(){
+		cargarHeader();
 		
 		const authToken = localStorage.getItem("authToken");
 		getInfoUsuario(authToken);
@@ -276,22 +304,35 @@
 
 		    // cargamos el nombre en el campo del navbar
 		    document.getElementById("user-name").textContent = capitalizarString(userName) + " 👋";
+		    
+		    localStorage.setItem("userPerfil", JSON.stringify(data.data));
 			
-			if(idRol=="1"){
-				document.getElementById("nroClienteNbr").value = contrato;
-				document.getElementById("nroClienteNbr").disabled = true;
-				
-				document.getElementById("contrato-name").textContent = capitalizarString(userName);
-				
-			}else{
-				document.getElementById("nroClienteNbr").value = "";
-				document.getElementById("nroClienteNbr").disabled = false;
+			const nroClienteInput = document.getElementById("nroClienteNbr");
+			if(nroClienteInput){
+				if(idRol=="1"){
+					document.getElementById("nroClienteNbr").value = contrato;
+					document.getElementById("nroClienteNbr").disabled = true;
+					
+					document.getElementById("contrato-name").textContent = capitalizarString(userName);
+					
+				}else{
+					document.getElementById("nroClienteNbr").value = "";
+					document.getElementById("nroClienteNbr").disabled = false;
+				}
 			}
 
 		} catch (error) {
 		    console.error(error);
 		    window.location.href = "login.html";
 		}
+	}
+	
+	/**
+	** Funcion que recupera el detalle del usuario logueado
+	** cuando se accede desde el menu/ver perfil
+	**/
+	async function getInfoUsuarioMenu(){
+        	window.location.href = "perfil.html";
 	}
 	
 	/**
@@ -338,7 +379,9 @@
 			    noOffersMessage.style.textAlign = "center";
 			    noOffersMessage.style.fontSize = "1.2em";
 			    noOffersMessage.style.color = "#555";
-			    container.appendChild(noOffersMessage);
+			    if(container){
+			    	container.appendChild(noOffersMessage);
+				}
 			    return;
 			}
 			

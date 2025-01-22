@@ -2,7 +2,7 @@ body {
             background-color: #ffffff;
             color: #000000;
 			padding-top: 120px;
-        }
+    }
         .header {
             background-color: #00524F;
             color: white;
@@ -82,6 +82,14 @@ body {
             max-width: 18rem; /* Ancho máximo para mantener proporción */ 
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
         }
+        
+        #back-button {
+		    display: flex;
+		    align-items: center;
+		    gap: 5px;
+		    font-size: 1rem;
+		}
+        
         @media (max-width: 992px) {
             .card {
                 flex: 1 1 calc(50% - 20px); /* En pantallas medianas, 2 tarjetas por fila */
