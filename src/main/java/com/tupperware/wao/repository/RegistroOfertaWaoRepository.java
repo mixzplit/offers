@@ -16,7 +16,7 @@ public interface RegistroOfertaWaoRepository extends JpaRepository<RegistroOfert
 	//Buscar ofertas registradas por usuario (contrato)
 	@Query("select new com.tupperware.wao.dto.OfertaUsuarioDTO(o.id, o.descripcionArticulo, "
 			+ " o.codigoArticulo, o.codigoAuxiliar, r.cantidadSolicitada, r.fechaRegistro, "
-			+ " r.estado) "
+			+ " r.estado, o.anio, o.campania) "
 			+ "from RegistroOfertaWao r "
 			+ "inner join OfertaWao o on r.idOferta = o.id "
 			+ "inner join User u on r.contrato = u.contrato "
@@ -25,7 +25,7 @@ public interface RegistroOfertaWaoRepository extends JpaRepository<RegistroOfert
 	
 	@Query("select new com.tupperware.wao.dto.OfertaUsuarioDTO(o.id, o.descripcionArticulo, "
 			+ " o.codigoArticulo, o.codigoAuxiliar, r.cantidadSolicitada, r.fechaRegistro, "
-			+ " r.estado) "
+			+ " r.estado, o.anio, o.campania) "
 			+ "from RegistroOfertaWao r "
 			+ "inner join OfertaWao o on r.idOferta = o.id "
 			+ "inner join User u on r.contrato = u.contrato "

@@ -74,6 +74,7 @@ public class UserService implements UserDetailsService {
 			userDto.setIdPerfil(user.getIdRolWeb());
 			userDto.setNombrePerfil(user.getNombreRol());
 			userDto.setGrupoAplicacion(rev.getGrupoAplicacion());
+			userDto.setGrupoUM(rev.getGrupo());
 			
 			actionLogService.logAction(user.getContrato(), "Perfil", "Consulta perfil Usuario");
 			

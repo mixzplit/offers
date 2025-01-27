@@ -1,4 +1,6 @@
 console.log("perfil.js cargado");
+import { capitalizarString } from './utils.js';
+import { checkAuthentication, logout, getInfoUsuarioMenu, verOfertasSolicitadas } from './auth.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 	console.log("DOM completamente cargado");
@@ -8,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
 	cargarHeader();
+	cargarModalLogout();
 	
     const backButton = document.getElementById("back-button");
 
@@ -18,10 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+window.logout = logout;
+window.getInfoUsuarioMenu = getInfoUsuarioMenu;
+window.verOfertasSolicitadas = verOfertasSolicitadas;
 
 function cargarHeader() {
 	
-    fetch('header.html')
+    fetch('./common/header.html')
         .then(response => {
             if (!response.ok) {
 				console.log(`Error al cargar el header: ${response.statusText}`);
@@ -39,6 +45,15 @@ function cargarHeader() {
         });
 }
 
+function cargarModalLogout (){
+	fetch('./common/logout-modal.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('modal-cierre-sesion').innerHTML = data;
+        })
+        .catch(error => console.error('Error al cargar el modal:', error));
+}
+
 function cargarDatosUsuario(){
 	const userPerfil = JSON.parse(localStorage.getItem("userPerfil"));
 	
@@ -50,6 +65,7 @@ function cargarDatosUsuario(){
             document.getElementById("zona-usuario").textContent = userPerfil.zona;
             document.getElementById("division-usuario").textContent = userPerfil.division;
             document.getElementById("email-usuario").textContent = userPerfil.email;
+            document.getElementById("grupo-um-usuario").textContent = userPerfil.grupoUM;
             
         } else {
             console.error("No se encontraron datos de perfil en el localStorage.");
@@ -57,40 +73,3 @@ function cargarDatosUsuario(){
         }
 }
 
-/**
-** Formatea un string para que quede "Palabra" en vez de "PALABRA".
-**/
-function capitalizarString(text){
-	
-	return text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-/**
-** Funcion que chequea la autenticacion, carga la info del usuario y busca las waos activas
-**/
-function checkAuthentication() {
-	
-	//obtenemos el token genrado
-    const authToken = localStorage.getItem("authToken");
-
-	//redireccionamos en caso que no haya un token activo
-    if (!authToken) {
-		alert("Su sesión ha caducado, vuelva a iniciar la misma.");
-        window.location.href = "login.html";
-		return false;
-    }
-	return true;
-}
-
-/**
-** Funcion para el logout
-**/
-function logout() {
-    
-	// borramos el token del almacenamiento local
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userPerfil");
-    
-    //redireccionamos al login
-    window.location.href = "login.html";
-}

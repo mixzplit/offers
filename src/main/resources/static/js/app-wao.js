@@ -1,9 +1,10 @@
 console.log("app-wao.js cargado");
-
+import { capitalizarString } from './utils.js';
+import { checkAuthentication, logout, getInfoUsuarioMenu, verOfertasSolicitadas } from './auth.js';
 // Cargar el header dinámicamente
 
 function cargarHeader() {
-    fetch('header.html')
+    fetch('./common/header.html')
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Error al cargar el header: ${response.statusText}`);
@@ -21,111 +22,92 @@ function cargarHeader() {
         });
 }
 
+function cargarModalLogout (){
+	fetch('./common/logout-modal.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('modal-cierre-sesion').innerHTML = data;
+        })
+        .catch(error => console.error('Error al cargar el modal:', error));
+}
 
-	//si no hay problemas con la autenticacion, inicializo
-	if(checkAuthentication()){
-		
-		inicializarPantalla();
-		
-		// Seleccionar el input
-		const nroClienteInput = document.getElementById("nroClienteNbr");
-		if(nroClienteInput){
-			const handleInput = () => {
-			    const value = nroClienteInput.value;
-			    cargarInfoContratoIngresado(value);
-			};
-	
-			// Asignar el evento al input
-			nroClienteInput.addEventListener("change", handleInput);
-		}else {
-        	console.warn("El elemento nroClienteNbr no se encontró en el DOM.");
-    	}
-	}
-	
-	/**
-	** Funcion que carga en pantalla la info del contrato ingresado
-	**/
-	async function cargarInfoContratoIngresado(contrato){
-		
-		try {
-		    
-			const authToken = localStorage.getItem("authToken");
-			
-			const url = `./revendedora/${contrato}`;
-			
-			//mandamos la solicitud
-		    const response = await fetch(url, {
-		        method: "GET",
-		        headers: {
-		            "Content-Type": "application/json",
-		            "Authorization": `Bearer ${authToken}`,
-		        },
-		    });
+window.logout = logout;
+window.getInfoUsuarioMenu = getInfoUsuarioMenu;
+window.verOfertasSolicitadas = verOfertasSolicitadas;
+//window.cargarModalLogout = cargarModalLogout;
 
-		    // respuesta de la peticion
-		    const data = await response.json();
-			
-			if(data.data != null && data.data.nombres != null && data.data.nombres.trim() != ""){
-				document.getElementById("contrato-name").textContent = capitalizarString(data.data.nombres);
-				document.getElementById("contrato-name").style.color = "";
-			}else{
-				document.getElementById("contrato-name").textContent = data.message;
-				document.getElementById("contrato-name").style.color = "red";
-			}
+//si no hay problemas con la autenticacion, inicializo
+if(checkAuthentication()){
+	
+	inicializarPantalla();
+	
+	// Seleccionar el input
+	const nroClienteInput = document.getElementById("nroClienteNbr");
+	if(nroClienteInput){
+		const handleInput = () => {
+		    const value = nroClienteInput.value;
+		    cargarInfoContratoIngresado(value);
+		};
 
-		} catch (error) {
-		    console.error(error);
-			alert("Se produjo un error al querer buscar el nombre del contrato ingresado.");
-		}
+		// Asignar el evento al input
+		nroClienteInput.addEventListener("change", handleInput);
+	}else {
+    	console.warn("El elemento nroClienteNbr no se encontró en el DOM.");
 	}
+}
 	
-	/**
-	** Formatea un string para que quede "Palabra" en vez de "PALABRA".
-	**/
-	function capitalizarString(text){
-		
-		return text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
-	}
+/**
+** Funcion que carga en pantalla la info del contrato ingresado
+**/
+async function cargarInfoContratoIngresado(contrato){
 	
-	/**
-	** Funcion para el logout
-	**/
-	function logout() {
+	try {
 	    
-		// borramos el token del almacenamiento local
-	    localStorage.removeItem("authToken");
-	    
-	    //redireccionamos al login
-	    window.location.href = "login.html";
-	}
-	
-	/**
-	** Funcion que chequea la autenticacion, carga la info del usuario y busca las waos activas
-	**/
-	function checkAuthentication() {
-		
-		//obtenemos el token genrado
-	    const authToken = localStorage.getItem("authToken");
-
-		//redireccionamos en caso que no haya un token activo
-	    if (!authToken) {
-			alert("Su sesión ha caducado, vuelva a iniciar la misma.");
-	        window.location.href = "login.html";
-			return false;
-	    }
-		return true;
-	}
-	
-	/**
-	** Inicializamos los datos de la pantalla
-	**/
-	function inicializarPantalla(){
-		cargarHeader();
-		
 		const authToken = localStorage.getItem("authToken");
-		getInfoUsuario(authToken);
-		getWAOS(authToken);
+		
+		const url = `./revendedora/${contrato}`;
+		
+		//mandamos la solicitud
+	    const response = await fetch(url, {
+	        method: "GET",
+	        headers: {
+	            "Content-Type": "application/json",
+	            "Authorization": `Bearer ${authToken}`,
+	        },
+	    });
+
+	    // respuesta de la peticion
+	    const data = await response.json();
+		
+		if(data.data != null && data.data.nombres != null && data.data.nombres.trim() != ""){
+			document.getElementById("contrato-name").textContent = capitalizarString(data.data.nombres);
+			document.getElementById("contrato-name").style.color = "";
+		}else{
+			document.getElementById("contrato-name").textContent = data.message;
+			document.getElementById("contrato-name").style.color = "red";
+		}
+
+	} catch (error) {
+	    console.error(error);
+		alert("Se produjo un error al querer buscar el nombre del contrato ingresado.");
 	}
+}
+	
+
+	
+
+	
+/**
+** Inicializamos los datos de la pantalla
+**/
+function inicializarPantalla(){
+	cargarHeader();
+	cargarModalLogout();
+	
+	const authToken = localStorage.getItem("authToken");
+	getInfoUsuario(authToken);
+	getWAOS(authToken);
+}
 	
 	/**
 	** Funcion que hace la reserva de la wao
@@ -327,13 +309,6 @@ function cargarHeader() {
 		}
 	}
 	
-	/**
-	** Funcion que recupera el detalle del usuario logueado
-	** cuando se accede desde el menu/ver perfil
-	**/
-	async function getInfoUsuarioMenu(){
-        	window.location.href = "perfil.html";
-	}
 	
 	/**
 	** Funcion que trae todas las WAOs activas
