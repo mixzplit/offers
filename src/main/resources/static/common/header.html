@@ -1,0 +1,18 @@
+<!-- resources/static/header.html -->
+<!-- Header común -->
+<nav class="barra-superior fixed-top">
+	<div class="header d-flex justify-content-between align-items-center">
+		<div class="dropdown ms-auto">
+			<button class="btn btn-outline-logout dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+				Hola, <span id="user-name"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+				<li><a class="dropdown-item" href="#" onclick="getInfoUsuarioMenu()">Perfil</a></li>
+				<li><a class="dropdown-item" href="#" onclick="verOfertasSolicitadas()">Ver Ofertas Solicitadas</a></li>
+				<li><hr class="dropdown-divider"></li>
+				<li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modal-cierre-sesion">Cerrar Sesión</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
