@@ -23,4 +23,6 @@ public class OfertaUsuarioDTO {
 	private Integer cantidadSoclicitada;
 	private LocalDateTime fechaRegistro;
 	private String estado;
+	private Short anio;
+	private Short campania;
 }

@@ -28,4 +28,5 @@ public class UserDTO {
 	//Propiedad para usar DNI o Email para el Login
 	private String emailDni;
 	private List<String> nodoResponsables;
+	private Integer grupoUM;
 }
