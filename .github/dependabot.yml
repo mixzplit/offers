@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"                  # raíz del proyecto (donde está el pom.xml)
+    schedule:
+      interval: "weekly"            # puede ser "daily", "weekly", "monthly"
+    open-pull-requests-limit: 5     # cuántos PRs puede abrir como máximo
+    rebase-strategy: "auto"         # intenta rebasear automáticamente si es necesario
+    commit-message:
+      prefix: "deps"
