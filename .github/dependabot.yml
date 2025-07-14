@@ -4,6 +4,7 @@ updates:
     directory: "/"                  # raíz del proyecto (donde está el pom.xml)
     schedule:
       interval: "weekly"            # puede ser "daily", "weekly", "monthly"
+    target-branch: "develop"		# branch donde revisara la dependencias
     open-pull-requests-limit: 5     # cuántos PRs puede abrir como máximo
     rebase-strategy: "auto"         # intenta rebasear automáticamente si es necesario
     commit-message:
